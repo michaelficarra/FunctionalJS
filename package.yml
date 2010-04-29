@@ -1,0 +1,35 @@
+name: FunctionTools
+author: michael
+category: Native
+tags: [
+    FunctionTools, function, functional, functional programming,
+    # Function::_
+    underscore, _,
+    # Function::empty
+    empty,
+    # Function::identity
+    identity,
+    # Function::lambda
+    lambda,
+    # Function::combine
+    combine, concat, concatenate,
+    # wrap()
+    wrap, wrapping, wrapper
+    # memoize()
+    memo, memoize, memoization, cache, caching,
+    # partial()
+    partial, default, arguments,
+    # curry()
+    curry, default arguments,
+    # not()
+    not,
+    # prepend()
+    prepend,
+    # append()
+    append,
+    # arglist()
+    arglist, argument, list, argument list
+]
+current: 0.1
+docs: 'http://github.com/michaelficarra/FunctionTools/blob/master/README.md'
+#demo: ''
