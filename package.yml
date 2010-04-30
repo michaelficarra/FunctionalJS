@@ -28,7 +28,9 @@ tags: [
     # append()
     append,
     # arglist()
-    arglist, argument, list, argument list
+    arglist, argument, list, argument list,
+    # Array.toFunction, Hash.toFunction
+    toFunction, Array.toFunction, Hash.toFunction
 ]
 current: 0.1
 docs: 'http://github.com/michaelficarra/FunctionTools/blob/master/README.md'
