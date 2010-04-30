@@ -5,9 +5,10 @@ license: LGPL
 authors: ['Michael Ficarra']
 requires: [Core,Function,Class]
 provides: [
-	Function::_, Function::empty, Function::identity, Function::lambda, Function::combine,
-	Function.wrap, Function.memoize, Function.partial, Function.curry, Function.not,
-	Function.prepend, Function.append, Function.arglist, Array.toFunction, Hash.toFunction
+	FunctionTools, Function::_, Function::empty, Function::identity, Function::lambda,
+	Function::combine, Function::compose, Function::overload, Function.wrap, Function.memoize,
+	Function.partial, Function.curry, Function.not, Function.prepend, Function.append,
+	Function.overload, Function.getArgs, Array.toFunction, Hash.toFunction
 ]
 ... */
 

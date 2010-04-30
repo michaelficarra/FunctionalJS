@@ -11,8 +11,10 @@ tags: [
     identity,
     # Function::lambda
     lambda,
-    # Function::combine
-    combine, concat, concatenate,
+    # Function::combine, Function::compose
+    combine, compose, concat, concatenate,
+    # Function:: overload
+    overload,
     # wrap()
     wrap, wrapping, wrapper
     # memoize()
@@ -27,8 +29,8 @@ tags: [
     prepend,
     # append()
     append,
-    # arglist()
-    arglist, argument, list, argument list,
+    # getArgs()
+    getArgs, get arguments, arglist, argument, list, argument list,
     # Array.toFunction, Hash.toFunction
     toFunction, Array.toFunction, Hash.toFunction
 ]
