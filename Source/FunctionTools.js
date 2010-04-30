@@ -32,9 +32,25 @@ Function.extend({
 			});
 			return result;
 		};
-	}
+	},
 
+	overload: function(funcTable){
+		if(!funcTable || typeof funcTable === 'function'){
+			var newTable = [];
+			for(var i=0, l=arguments.length; i<l; i++){
+				newTable[arguments[i].arity] = arguments[i];
+			}
+			funcTable = newTable;
+		}
+		return function(){
+			var fn = funcTable[arguments.length];
+			if(!fn || typeof fn != 'function') return undefined;
+			return fn.apply(this,arguments);
+		};
+	}
 });
+
+Function.extend({compose: Function.combine});
 
 Function.implement({
 
@@ -98,7 +114,17 @@ Function.implement({
 		});
 	},
 
-	arglist: function(){
+	overload: function(funcTable){
+		if(!funcTable || typeof funcTable === 'function') {
+			var others = Array.prototype.slice.call(arguments);
+			return Function.overload.apply(null,others.concat(this));
+		} else {
+			funcTable[this.arity] = this;
+			return Function.overload(funcTable);
+		}
+	},
+
+	getArgs: function(){
 		var fn = this;
 		while(fn._origin) fn = fn._origin;
 		var args = fn.toString().match(/function\s*\S*?\((.*?)\)/)[1].split(/\s*,\s*/);
@@ -109,8 +135,8 @@ Function.implement({
 
 // cache arglists
 (function(){
-	var arglist = Function.prototype.arglist;
-	Function.prototype.arglist = (function(){ return arglist.apply(this,arguments); }).memoize();
+	var original = Function.prototype.getArgs;
+	Function.prototype.getArgs = (function(){ return original.apply(this,arguments); }).memoize();
 })();
 
 
