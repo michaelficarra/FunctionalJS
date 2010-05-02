@@ -79,6 +79,7 @@ Function.implement({
 			while(origin._origin) origin = origin._origin;
 			var key = [origin,args];
 			if(memos[key] !== undefined) return memos[key];
+			if(memos[args] !== undefined) return memos[args];
 			return (memos[key] = original.apply(this,args));
 		});
 	},
