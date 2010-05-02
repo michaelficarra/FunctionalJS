@@ -12,7 +12,7 @@ provides: [
 ]
 ... */
 
-_ = Function._ = {};
+this._ = Function._ = {};
 
 Function.extend({
 
