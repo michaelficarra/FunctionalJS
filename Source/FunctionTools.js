@@ -12,8 +12,12 @@ provides: [
 ]
 ... */
 
+
+// class properties and globals
 this._ = Function._ = {};
 
+
+// class methods
 Function.extend({
 
 	empty: function(){},
@@ -51,8 +55,11 @@ Function.extend({
 	}
 });
 
+// aliasing
 Function.extend({compose: Function.combine});
 
+
+// instance methods
 Function.implement({
 
 	wrap: function(fn){
