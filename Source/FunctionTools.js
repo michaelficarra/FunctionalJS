@@ -5,16 +5,20 @@ license: LGPL
 authors: ['Michael Ficarra']
 requires: [Core,Function,Class]
 provides: [
-	FunctionTools, Function::_, Function::empty, Function::identity, Function::lambda,
-	Function::combine, Function::compose, Function::overload, Function.wrap, Function.memoize,
-	Function.partial, Function.curry, Function.not, Function.prepend, Function.append,
-	Function.overload, Function.getArgs, Array.toFunction, Hash.toFunction
+	FunctionTools, Function._, Function.empty, Function.identity, Function.lambda,
+	Function.combine, Function.compose, Function.overload, Function::wrap, Function::memoize,
+	Function::partial, Function::curry, Function::not, Function::prepend, Function::append,
+	Function::overload, Function::getArgs, Function::getArity, Array::toFunction, Hash::toFunction
 ]
 ... */
 
 
 // class properties and globals
-this._ = Function._ = {};
+this._ = Function._ = function(_){
+	var args = arguments.callee.caller.arguments;
+	if(_===undefined) args._ = (args._===undefined ? 0 : args._+1);
+	return args[_||args._];
+};
 
 
 // class methods
@@ -49,7 +53,7 @@ Function.extend({
 		}
 		return function(){
 			var fn = funcTable[arguments.length];
-			if(!fn || typeof fn != 'function') return undefined;
+			if(!fn || typeof fn !== 'function') return undefined;
 			return fn.apply(this,arguments);
 		};
 	}
@@ -138,6 +142,10 @@ Function.implement({
 		while(fn._origin) fn = fn._origin;
 		var args = fn.toString().match(/function\s*\S*?\((.*?)\)/)[1].split(/\s*,\s*/);
 		return args.filter(function(_){ return _ !== ""; });
+	},
+
+	getArity: function(){
+		return this.arity || this.getArgs().length;
 	}
 
 });
