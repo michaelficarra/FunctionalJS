@@ -43,6 +43,17 @@ Function.extend({
 		};
 	},
 
+	compose: function(){
+		var args = Array.prototype.slice.call(arguments);
+		return function(){
+			var lastReturn = Array.prototype.slice.call(arguments);
+			args.reverse().each(function(fn){
+				lastReturn = [fn.apply(this,lastReturn)]
+			});
+			return lastReturn[0];
+		}
+	},
+
 	overload: function(funcTable){
 		if(!funcTable || typeof funcTable === 'function'){
 			var newTable = [];
@@ -58,9 +69,6 @@ Function.extend({
 		};
 	}
 });
-
-// aliasing
-Function.extend({compose: Function.combine});
 
 
 // instance methods
