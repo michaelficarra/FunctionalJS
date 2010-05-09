@@ -320,7 +320,7 @@ upon which `toFunction` was called.
 Globals
 -------
 
-### _(\[n\]) / Function._(\[n\])
+### \_(\[n\]) / Function.\_(\[n\])
 The underscore function accesses successive arguments of the function
 in which it is called. If a number is given as an argument, the
 argument at that index is returned and the internal pointer is not
