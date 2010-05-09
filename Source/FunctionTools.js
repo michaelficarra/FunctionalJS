@@ -15,6 +15,7 @@ provides: [
 
 // class properties and globals
 this._ = Function._ = function(_){
+	if(!arguments.callee.caller) return;
 	var args = arguments.callee.caller.arguments;
 	if(_===undefined) args._ = (args._===undefined ? 0 : args._+1);
 	return args[_||args._];
