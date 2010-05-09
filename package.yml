@@ -3,17 +3,17 @@ author: michael
 category: Native
 tags: [
     FunctionTools, function, functional, functional programming,
-    # Function::_
+    # Function._
     underscore, _,
-    # Function::empty
+    # Function.empty
     empty,
-    # Function::identity
+    # Function.identity
     identity,
-    # Function::lambda
+    # Function.lambda
     lambda,
-    # Function::combine, Function::compose
+    # Function.combine, Function.compose
     combine, compose, concat, concatenate,
-    # Function:: overload
+    # Function.overload
     overload,
     # wrap()
     wrap, wrapping, wrapper
@@ -31,7 +31,9 @@ tags: [
     append,
     # getArgs()
     getArgs, get arguments, arglist, argument, list, argument list,
-    # Array.toFunction, Hash.toFunction
+    # getArity()
+    getArity, arity, length,
+    # Array::toFunction, Hash::toFunction
     toFunction, Array.toFunction, Hash.toFunction
 ]
 current: 0.1
