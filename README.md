@@ -9,9 +9,11 @@ Inspired by [*ShiftSpace's functools*](http://github.com/ShiftSpace/functools).
 How To Use
 ----------
 
-The following is an example of some of the features of FunctionTools
-
-	function(){}
+`FunctionTools` is a set of related language enhancements that allow
+for a different programming style rather than a single utility, so
+there is no specific use case for `FunctionTools` as a whole. However,
+the documentation for each of the methods provided by `FunctionTools`
+is listed below.
 
 
 Class Methods
@@ -20,6 +22,12 @@ Class Methods
 ### Function.empty
 Returns `undefined` for any given value. Useful when overriding
 another function and desiring no action.
+
+	Function.empty()			// undefined
+	Function.empty("")			// undefined
+	Function.empty(2)			// undefined
+	Function.empty(null)		// undefined
+	Function.empty(true)		// undefined
 
 ### Function.identity(value)
 Returns whatever value is given. Useful when a function is expected
@@ -51,7 +59,7 @@ passed to all functions run.
 		fnC = function(_){ console.log(_+23); }
 	Function.combine(fnA,fnB,fnC)(100)				// undefined
 
-	// Console output:
+	// Console Output:
 	//  A
 	//  BC
 	//  123
@@ -128,7 +136,7 @@ of usage taken from the source:
 	})
 
 ### memoize(\[memos\])
-Returns an memoized version of the function upon which it is called.
+Returns a memoized version of the function upon which it is called.
 The memoized function keeps track of return values and the inputs
 that generated them, causing a faster, cached response the next time
 the same set of inputs is given. The unique key used to determine if
@@ -139,6 +147,36 @@ If an object containing a set of predetermined inputs and outputs is
 given, it will be used to initialize the internal memo collection.
 This object does not have to contain the context, just a set of
 values indexed by the array of arguments that would generate them.
+The memoized function will do a context-independent comparison to
+check if an array containing the arguments  is a key of the given
+object.
+
+	var fn = function(n){
+		console.log('unmemoized input: '+n);
+		return n.pow(2);
+	}										// <#Function:fn>
+	var memoized = fn.memoize()				// <#Function:memoized>
+
+	console.log('return value: ',fn(2))
+	console.log('return value: ',fn(2))
+	console.log('return value: ',memoized(3))
+	console.log('return value: ',memoized(3))
+
+	memoized = fn.memoize({4:16})		// <#Function:memoized>
+
+	console.log('return value: ',memoized(4))
+	console.log('return value: ',memoized(4))
+
+	// Console Output:
+	//  unmemoized input: 2
+	//  return value: 4
+	//  unmemoized input: 2
+	//  return value: 4
+	//  unmemoized input: 3
+	//  return value: 9
+	//  return value: 9
+	//  return value: 16
+	//  return value: 16
 
 ### partial(\[arg\]*)
 *Note: Function._ is defined as _ in the global scope*
@@ -146,7 +184,7 @@ Creates a partially applied function that has any passed arguments
 that are not `undefined` or `Function._` bound in the position they
 are given. The returned function accepts any unbound arguments.
 
-	var fn = function(){ return Array().slice.call(arguments); }
+	var fn = function(){ return [].slice.call(arguments); }
 	var part = fn.partial(1,undefined,_,4)		// <#Function:part>
 	part(2,3,5)									// [1,2,3,4,5]
 
@@ -155,7 +193,7 @@ A simplified `partial`. Creates a partially applied function has its
 arguments bound to those passed to `curry` in the order in which they
 are given.
 
-	var fn = function(){ return Array().slice.call(arguments); }
+	var fn = function(){ return [].slice.call(arguments); }
 	var some = fn.curry(1,2)		// <#Function:some>
 	some()							// [1,2]
 	var most = some.curry(3)		// <#Function:most>
@@ -176,14 +214,84 @@ upon which `not` is called when passed those arguments is returned.
 	powerOfTwo.not(5)		// true
 
 ### prepend(fn)
+Returns a new function that runs the given function before running
+the function upon which `prepend` was called. Any arguments passed to
+the generated function will be passed to both functions. The return
+value does not change when a function is prepended.
+
+	var fnA = function(x){ console.log("A",x); },
+		fnB = function(x){ console.log("B",x); },
+		fnC = function(x){ console.log("C",x); };
+	var fnAB = fnB.prepend(fnA),
+		fnBC = fnC.prepend(fnB),
+		fnABC = fnC.prepend(fnB).prepend(fnA);
+	fnAB(1)
+	fnBC(2)
+	fnABC(3)
+
+	// Console Output:
+	//  A 1
+	//	B 1
+	//  B 2
+	//  C 2
+	//  A 3
+	//  B 3
+	//  C 3
 
 ### append(fn)
+Returns a new function that runs the given function after running
+the function upon which `append` was called. Any arguments passed to
+the generated function will be passed to both functions. The return
+value becomes that of the appended function.
 
-### overload
+	var fnA = function(x){ console.log("A",x); },
+		fnB = function(x){ console.log("B",x); },
+		fnC = function(x){ console.log("C",x); };
+	var fnAB = fnA.append(fnB),
+		fnBC = fnB.append(fnC),
+		fnABC = fnA.append(fnB).append(fnC);
+	fnAB(1)
+	fnBC(2)
+	fnABC(3)
+	
+	// Console Output:
+	//  A 1
+	//	B 1
+	//  B 2
+	//  C 2
+	//  A 3
+	//  B 3
+	//  C 3
+
+### overload(\[funcTable\])
+If a numerically indexed object containing functions is given as the
+only argument, the function upon which `overload` is called is added
+to the object (indexed by its arity) and the object is passed to
+`Function.overload`. If a list of functions is given, the function
+upon which `overload` is called is appended to the list and the list
+is passed to `Function.overload`. In either case, the return value of
+`Function.overload` is returned.
+
+	var fnA = function(){ return "A"; },
+		fnB = function(b){ return "B"; },
+		fnC = function(){ return "C"; }
+	fnA.overload(fnB,fnC)()				// "A"
+	fnA.overload({1:fnB,2:fnC})(0)		// "B"
+	fnC.overload(fnA,fnB)()				// "C"
 
 ### getArgs
+Returns an array containing the arguments expected by the function
+upon which `getArgs` is called.
+
+	function(one,two){}.getArgs()				// ["one","two"]
+	function(a,b,c){}.memoize().getArgs()		// ["a","b","c"]
 
 ### getArity
+Returns the number of arguments expected by the function upon which
+`getArity` is called. 
+
+	function(one,two){}.getArity()				// 2
+	function(a,b,c){}.memoize().getArity()		// 3
 
 ### Array::toFunction
 Returns a function that returns the value of any property of the
@@ -209,9 +317,28 @@ upon which `toFunction` was called.
 	fn('hasOwnProperty')				// <#Function:hasOwnProperty>
 
 
+Globals
+-------
+
+### _(\[n\]) / Function._(\[n\])
+The underscore function accesses successive arguments of the function
+in which it is called. If a number is given as an argument, the
+argument at that index is returned and the internal pointer is not
+advanced.
+
+The underscore function can also be passed to `partial` as the
+placeholder for undefined arguments rather than passing `undefined`.
+
+	var fn = function(a){
+		return [_(),_(3),_(),_(),_(0),_(),_()];
+	}
+	fn(1,2,3,4)		// [1,4,2,3,1,4,undefined]
+
+
 TODO
 ----
 
+There is currently no planned work, but any suggestions are welcome.
 
 Known Issues
 ------------
