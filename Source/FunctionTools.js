@@ -15,8 +15,9 @@ provides: [
 
 // class properties and globals
 this._ = Function._ = function(_){
-	if(!arguments.callee.caller) return;
-	var args = arguments.callee.caller.arguments;
+	var caller = arguments.callee.caller || arguments.caller;
+	if(!caller) return;
+	var args = caller.arguments;
 	if(_===undefined) args._ = (args._===undefined ? 0 : args._+1);
 	return args[_===undefined ? args._ : _];
 };
@@ -34,12 +35,13 @@ Function.extend({
 	},
 
 	combine: function(){
-		var args = Array.prototype.slice.call(arguments);
+		var functions = Array.prototype.slice.call(arguments);
 		return function(){
-			var result;
-			args.each(function(fn){
-				result = fn.apply(this,arguments);
-			});
+			var result,
+				args = Array.prototype.slice.call(arguments);
+			functions.each(function(fn){
+				result = fn.apply(this,args);
+			},this);
 			return result;
 		};
 	},
@@ -50,7 +52,7 @@ Function.extend({
 			var lastReturn = Array.prototype.slice.call(arguments);
 			args.reverse().each(function(fn){
 				lastReturn = [fn.apply(this,lastReturn)]
-			});
+			},this);
 			return lastReturn[0];
 		}
 	},
@@ -63,10 +65,11 @@ Function.extend({
 			}
 			funcTable = newTable;
 		}
+		var that = this;
 		return function(){
 			var fn = funcTable[arguments.length];
 			if(!fn || typeof fn !== 'function') return undefined;
-			return fn.apply(this,arguments);
+			return fn.apply(that,arguments);
 		};
 	}
 });
