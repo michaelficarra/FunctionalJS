@@ -93,8 +93,6 @@ Function.implement({
 		var that = this;
 		return this.wrap(function(original,args){
 			var key = [that,args];
-			console.log(memos);
-			console.log(args);
 			if(memos[key] !== undefined) return memos[key];
 			if(memos[args] !== undefined) return memos[args];
 			if(args.length===1 && memos[args[0]] !== undefined) return memos[args[0]];
