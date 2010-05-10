@@ -343,7 +343,9 @@ There is currently no planned work, but any suggestions are welcome.
 Known Issues
 ------------
 
-There are currently no known issues.
+The underscore function seems to work improperly in chrome, likely
+caused by arguments.callee.caller not returning the same object on
+separate accesses. It is being looked into.
 
 
 Additional Info
