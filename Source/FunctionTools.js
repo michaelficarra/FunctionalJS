@@ -65,24 +65,24 @@ Function.extend({
 			}
 			funcTable = newTable;
 		}
-		var that = this;
 		return function(){
 			var fn = funcTable[arguments.length];
 			if(!fn || typeof fn !== 'function') return undefined;
-			return fn.apply(that,arguments);
+			return fn.apply(this,arguments);
 		};
 	}
+
 });
 
 
 // instance methods
 Function.implement({
 
-	wrap: function(fn){
+	wrap: function(fn,bind){
 		var that = this;
 		var ret = function(){
 			var args = Array.prototype.slice.call(arguments);
-			return fn.call(this,that.bind(this),args);
+			return fn.call(this,(bind ? that.bind(bind) : that),args);
 		};
 		ret._origin = this;
 		return ret;
@@ -90,12 +90,14 @@ Function.implement({
 
 	memoize: function(memos){
 		memos = memos || {};
+		var that = this;
 		return this.wrap(function(original,args){
-			var origin = this;
-			while(origin._origin) origin = origin._origin;
-			var key = [origin,args];
+			var key = [that,args];
+			console.log(memos);
+			console.log(args);
 			if(memos[key] !== undefined) return memos[key];
 			if(memos[args] !== undefined) return memos[args];
+			if(args.length===1 && memos[args[0]] !== undefined) return memos[args[0]];
 			return (memos[key] = original.apply(this,args));
 		});
 	},

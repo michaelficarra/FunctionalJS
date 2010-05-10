@@ -104,7 +104,7 @@ function.
 Instance Methods
 ----------------
 
-### wrap(fn)
+### wrap(fn\[, bind\])
 Returns a function that calls the given function, passing to it this
 function instance as the first argument and the arguments given to
 the generated function as the second argument.
@@ -114,6 +114,9 @@ supplied function (now called the wrapper function) is passed the
 function upon which `wrap` is called as the first argument and the
 arguments passed to the generated function as the second argument (as
 an array).
+
+An optional bind argument may be given, which binds the function upon
+which `wrap` is called to the given value.
 
 `wrap` handles the preservation of a reference to the function upon
 which `wrap` is called for use by methods like `getArgs`. Examples
@@ -146,10 +149,11 @@ and all arguments passed to the memoized function.
 If an object containing a set of predetermined inputs and outputs is
 given, it will be used to initialize the internal memo collection.
 This object does not have to contain the context, just a set of
-values indexed by the array of arguments that would generate them.
-The memoized function will do a context-independent comparison to
-check if an array containing the arguments  is a key of the given
-object.
+values indexed by the array of arguments that would generate them. If
+only a single argument is used as input, that value may be used as
+the key (rather than an array containing only that value). The
+memoized function will do a context-independent comparison to check
+if an array containing the arguments  is a key of the given object.
 
 	var fn = function(n){
 		console.log('unmemoized input: '+n);
