@@ -92,7 +92,9 @@ Function.implement({
 		memos = memos || {};
 		var that = this;
 		return this.wrap(function(original,args){
-			var key = [that,args];
+			var origin = this;
+			while(origin._origin) origin = origin._origin;
+			var key = [origin,args];
 			if(memos[key] !== undefined) return memos[key];
 			if(memos[args] !== undefined) return memos[args];
 			if(args.length===1 && memos[args[0]] !== undefined) return memos[args[0]];
