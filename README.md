@@ -48,7 +48,7 @@ Returns a function that returns the value passed to `Function.lambda`.
 	fn(false)	// "lambda"
 	fn(18)		// "lambda"
 
-### Function.sequence(\[fn\]*)
+### Function.sequence(\[fn\]\*)
 Creates a function that runs all functions passed to `Function.sequence`
 sequentially. The return value of the last function is returned from
 the generated function. Arguments given to the generated function are
@@ -64,7 +64,7 @@ passed to all functions run.
 	//  BC
 	//  123
 
-### Function.compose(\[fn\]*)
+### Function.compose(\[fn\]\*)
 Creates a function that runs all functions passed in reverse order,
 passing the return value of the last function run as the input to the
 next function. Any arguments given to the generated function will be
@@ -182,7 +182,7 @@ if an array containing the arguments  is a key of the given object.
 	//  return value: 16
 	//  return value: 16
 
-### partial(\[arg\]*)
+### partial(\[arg\]\*)
 *Note: Function._ is defined as _ in the global scope*
 Creates a partially applied function that has any passed arguments
 that are not `undefined` or `Function._` bound in the position they
@@ -192,7 +192,7 @@ are given. The returned function accepts any unbound arguments.
 	var part = fn.partial(1,undefined,_,4)		// <#Function:part>
 	part(2,3,5)									// [1,2,3,4,5]
 
-### curry(\[arg\]*)
+### curry(\[arg\]\*)
 A simplified `partial`. Creates a partially applied function has its
 arguments bound to those passed to `curry` in the order in which they
 are given.
@@ -203,7 +203,7 @@ are given.
 	var most = some.curry(3)		// <#Function:most>
 	var all = most(4,5)				// [1,2,3,4,5]
 
-### not(\[arg\]*)
+### not(\[arg\]\*)
 When called with no arguments, returns a function that returns the
 opposite Boolean representation of the return value of the function
 upon which `not` is called. When arguments are passed to `not`, the
@@ -355,12 +355,23 @@ placeholder for undefined arguments rather than passing `undefined`.
 TODO
 ----
 
-There is currently no planned work, but any suggestions are welcome.
+* Function.pluck(key)
+* Function.invoke(key)
+* rcurry(\[args\]\*)
+* traced(\[functionName\])
+* toFunction()
+* saturate(\[args\]\*)
+* aritize(n)
+* reduceRight(arr,init)
+* Function.and()
+* Function.or()
+* Function.xor()
+
 
 Known Issues
 ------------
 
-The underscore function is broken in chrome, caused by
+* The underscore function is broken in chrome, caused by
 arguments.callee.caller.arguments not returning the same object on
 separate accesses. See [V8 Issue 222](http://code.google.com/p/v8/issues/detail?id=222).
 
