@@ -59,9 +59,9 @@ Function.extend({
 
 	overload: function(funcTable){
 		if(!funcTable || typeof funcTable === 'function'){
-			var newTable = [];
+			var newTable = {};
 			for(var i=0, l=arguments.length; i<l; i++){
-				newTable[arguments[i].arity] = arguments[i];
+				newTable[arguments[i].getArity()] = arguments[i];
 			}
 			funcTable = newTable;
 		}
@@ -146,7 +146,7 @@ Function.implement({
 			var others = Array.prototype.slice.call(arguments);
 			return Function.overload.apply(null,others.concat(this));
 		} else {
-			funcTable[this.arity] = this;
+			funcTable[this.getArity()] = this;
 			return Function.overload(funcTable);
 		}
 	},
@@ -159,7 +159,7 @@ Function.implement({
 	},
 
 	getArity: function(){
-		return this.arity || this.getArgs().length;
+		return this.arity || this.length || this.getArgs().length;
 	}
 
 });
