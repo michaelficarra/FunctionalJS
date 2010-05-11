@@ -172,8 +172,9 @@ Function.implement({
 
 
 // implement array methods
-['forEach','each','every','some','filter','map','reduce','sort'].each(function(fnStr){
+['forEach','each','every','some','filter','map','reduce','reduceRight','sort'].each(function(fnStr){
 	var fn = function(){
+		if(arr[fnStr]===undefined) return;
 		var args = Array.prototype.slice.call(arguments);
 		var arr = args.shift();
 		return arr[fnStr].apply(arr,[this].concat(args));
