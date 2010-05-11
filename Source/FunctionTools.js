@@ -174,13 +174,18 @@ Function.implement({
 // implement array methods
 ['forEach','each','every','some','filter','map','reduce','reduceRight','sort'].each(function(fnStr){
 	var fn = function(){
-		if(arr[fnStr]===undefined) return;
 		var args = Array.prototype.slice.call(arguments);
 		var arr = args.shift();
+		if(arr[fnStr]===undefined) return;
 		return arr[fnStr].apply(arr,[this].concat(args));
 	};
 	fn._origin = Array.prototype[fnStr];
 	Function.implement(fnStr,fn);
+});
+
+Function.implement({
+	foldl: Function.prototype.reduce,
+	foldr: Function.prototype.reduceRight
 });
 
 
