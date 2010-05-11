@@ -34,7 +34,7 @@ Function.extend({
 		return function(){ return _; };
 	},
 
-	combine: function(){
+	sequence: function(){
 		var functions = Array.prototype.slice.call(arguments);
 		return function(){
 			var result,

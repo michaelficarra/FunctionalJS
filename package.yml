@@ -11,8 +11,10 @@ tags: [
     identity,
     # Function.lambda
     lambda,
-    # Function.combine, Function.compose
-    combine, compose, concat, concatenate,
+    # Function.combine,
+    sequence, combine, concat, concatenate,
+    # Function.compose
+    compose, 
     # Function.overload
     overload,
     # wrap()

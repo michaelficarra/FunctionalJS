@@ -70,16 +70,16 @@ describe('Function.lambda', {
 	}
 });
 
-describe('Function.combine', {
+describe('Function.sequence', {
 	before: function(){
 		shared = "";
 		fnA = function(x){ shared += "A"+(x||"")+(this===window ? "" : this); };
 		fnB = function(x){ shared += "B"+(x||"")+(this===window ? "" : this); };
 		fnC = function(x){ shared += "C"+(x||"")+(this===window ? "" : this); };
 	},
-	'functions are combined': function(){
+	'functions are sequenced': function(){
 		value_of(shared).should_be_empty()
-		Function.combine(
+		Function.sequence(
 			fnA,
 			function(){ value_of(shared).should_be("A"); },
 			fnB,
@@ -90,7 +90,7 @@ describe('Function.combine', {
 	},
 	'arguments are passed through': function(){
 		value_of(shared).should_be_empty()
-		Function.combine(
+		Function.sequence(
 			fnA,
 			function(){ value_of(shared).should_be("A1"); },
 			fnB,
@@ -101,7 +101,7 @@ describe('Function.combine', {
 	},
 	'context correctly preserved': function(){
 		value_of(shared).should_be_empty()
-		Function.combine(
+		Function.sequence(
 			fnA,
 			function(){ value_of(shared).should_be("A12"); },
 			fnB,

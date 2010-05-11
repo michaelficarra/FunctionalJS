@@ -48,8 +48,8 @@ Returns a function that returns the value passed to `Function.lambda`.
 	fn(false)	// "lambda"
 	fn(18)		// "lambda"
 
-### Function.combine(\[fn\]*)
-Creates a function that runs all functions passed to `Function.combine`
+### Function.sequence(\[fn\]*)
+Creates a function that runs all functions passed to `Function.sequence`
 sequentially. The return value of the last function is returned from
 the generated function. Arguments given to the generated function are
 passed to all functions run.
@@ -57,7 +57,7 @@ passed to all functions run.
 	var fnA = function(){ console.log('A'); },
 		fnB = function(){ console.log('BC'); },
 		fnC = function(_){ console.log(_+23); }
-	Function.combine(fnA,fnB,fnC)(100)				// undefined
+	Function.sequence(fnA,fnB,fnC)(100)				// undefined
 
 	// Console Output:
 	//  A
