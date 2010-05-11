@@ -300,10 +300,12 @@ Returns the number of arguments expected by the function upon which
 ### Array Methods
 The array methods `forEach`, `each`, `every`, `some`, `filter`,
 `map`, `reduce`, `reduceRight`, and `sort` are defined as Function
-instance methods that accept an array as input. The function call is
-translated into the associated method call on the array, passing the
-function upon which the method was called as the first argument and
-any other arguments supplied as successive arguments.
+instance methods that accept an array as input. `foldl` and `foldr`
+are implemented as aliases to `reduce` and `reduceRight`. The
+function call is translated into the associated method call on the
+array, passing the function upon which the method was called as the
+first argument and any other arguments supplied as successive
+arguments.
 
 	var fn = function (a,b){ return a+b; }		// <#Function:fn>
 	fn.reduce([1,2,3,4],0)						// 10
