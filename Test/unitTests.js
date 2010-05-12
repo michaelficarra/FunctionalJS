@@ -181,6 +181,80 @@ describe('Function.overload',{
 	}
 });
 
+describe('Boolean function logic',{
+	before: function(){
+		shared = false;
+		fnT = function(){ shared=true; return true; };
+		fnF = function(){ shared=false; return false; };
+	},
+	'and': function(){
+		value_of(Function.and()).should_be_undefined();
+		value_of(Function.and(fnT)).should_be_true();
+		value_of(Function.and(fnF)).should_be_false();
+		value_of(Function.and(fnT,fnT)).should_be_true();
+		value_of(Function.and(fnT,fnF)).should_be_false();
+		value_of(Function.and(fnF,fnT)).should_be_false();
+		value_of(Function.and(fnF,fnF)).should_be_false();
+		value_of(Function.and(fnT,fnT,fnT)).should_be_true();
+		value_of(Function.and(fnT,fnT,fnF)).should_be_false();
+		value_of(Function.and(fnT,fnF,fnT)).should_be_false();
+		value_of(Function.and(fnT,fnF,fnF)).should_be_false();
+		value_of(Function.and(fnF,fnT,fnT)).should_be_false();
+		value_of(Function.and(fnF,fnT,fnF)).should_be_false();
+		value_of(Function.and(fnF,fnF,fnT)).should_be_false();
+		value_of(Function.and(fnF,fnF,fnF)).should_be_false();
+	},
+	'or': function(){
+		value_of(Function.or()).should_be_undefined();
+		value_of(Function.or(fnT)).should_be_true();
+		value_of(Function.or(fnF)).should_be_false();
+		value_of(Function.or(fnT,fnT)).should_be_true();
+		value_of(Function.or(fnT,fnF)).should_be_true();
+		value_of(Function.or(fnF,fnT)).should_be_true();
+		value_of(Function.or(fnF,fnF)).should_be_false();
+		value_of(Function.or(fnT,fnT,fnT)).should_be_true();
+		value_of(Function.or(fnT,fnT,fnF)).should_be_true();
+		value_of(Function.or(fnT,fnF,fnT)).should_be_true();
+		value_of(Function.or(fnT,fnF,fnF)).should_be_true();
+		value_of(Function.or(fnF,fnT,fnT)).should_be_true();
+		value_of(Function.or(fnF,fnT,fnF)).should_be_true();
+		value_of(Function.or(fnF,fnF,fnT)).should_be_true();
+		value_of(Function.or(fnF,fnF,fnF)).should_be_false();
+	},
+	'xor': function(){
+		value_of(Function.xor()).should_be_undefined();
+		value_of(Function.xor(fnT)).should_be_true();
+		value_of(Function.xor(fnF)).should_be_false();
+		value_of(Function.xor(fnT,fnT)).should_be_false();
+		value_of(Function.xor(fnT,fnF)).should_be_true();
+		value_of(Function.xor(fnF,fnT)).should_be_true();
+		value_of(Function.xor(fnF,fnF)).should_be_false();
+		value_of(Function.xor(fnT,fnT,fnT)).should_be_true();
+		value_of(Function.xor(fnT,fnT,fnF)).should_be_false();
+		value_of(Function.xor(fnT,fnF,fnT)).should_be_false();
+		value_of(Function.xor(fnT,fnF,fnF)).should_be_true();
+		value_of(Function.xor(fnF,fnT,fnT)).should_be_false();
+		value_of(Function.xor(fnF,fnT,fnF)).should_be_true();
+		value_of(Function.xor(fnF,fnF,fnT)).should_be_true();
+		value_of(Function.xor(fnF,fnF,fnF)).should_be_false();
+	},
+	'short-circuit': function(){
+		shared = true;
+		Function.and(fnF,fnT);
+		value_of(shared).should_be(false);
+		shared = true;
+		Function.and(fnT,fnF,fnT,fnT);
+		value_of(shared).should_be(false);
+
+		shared = false;
+		Function.or(fnT,fnF);
+		value_of(shared).should_be(true);
+		shared = false;
+		Function.or(fnF,fnT,fnF,fnF);
+		value_of(shared).should_be(true);
+	}
+});
+
 describe('Function::wrap',{
 	before: function(){
 		fnA = function(){ return 1; };

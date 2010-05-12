@@ -74,6 +74,27 @@ Function.extend({
 
 });
 
+// Boolean function logic
+(function(){
+	var xor = function(a,b){ return !!(!!a ^ !!b); },
+		and = function(a,b){ return !!(a && b); },
+		or  = function(a,b){ return !!(a || b); };
+	new Hash({'xor':xor,'and': and,'or':or}).each(function(fn,fnName){
+		Function[fnName] = function(){
+			switch(arguments.length){
+				case 0: return undefined;
+				case 1: return !!arguments[0]();
+				default:
+					var first = arguments[0]();
+					// short-circuit and and or
+					if(fn===and && !first || fn===or && first) return !!first;
+					var rest = Array.prototype.slice.call(arguments,1);
+					return !!fn(first,arguments.callee.apply(this,rest));
+			}
+		};
+	});
+})()
+
 
 // instance methods
 Function.implement({
