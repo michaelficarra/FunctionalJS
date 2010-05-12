@@ -48,6 +48,10 @@ Returns a function that returns the value passed to `Function.lambda`.
 	fn(false)	// "lambda"
 	fn(18)		// "lambda"
 
+### Function.pluck(property)
+
+### Function.invoke(method)
+
 ### Function.sequence(\[fn\]\*)
 Creates a function that runs all functions passed to `Function.sequence`
 sequentially. The return value of the last function is returned from
@@ -355,13 +359,13 @@ placeholder for undefined arguments rather than passing `undefined`.
 TODO
 ----
 
-* Function.pluck(key)
-* Function.invoke(key)
-* rcurry(\[args\]\*)
 * traced(\[functionName\])
 * toFunction()
 * saturate(\[args\]\*)
 * aritize(n)
+* document Function.pluck
+* document Function.invoke
+* document Function::rcurry
 * document boolean functions
 
 Known Issues

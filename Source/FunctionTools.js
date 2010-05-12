@@ -28,10 +28,24 @@ Function.extend({
 
 	empty: function(){},
 
-	identity: function(_){ return _; },
+	identity: function(_){
+		return arguments.length>1 ? Array.prototype.slice.call(arguments) : _;
+	},
 
 	lambda: function(_){
 		return function(){ return _; };
+	},
+
+	pluck: function(property){
+		return function(obj){ return obj[property]; };
+	},
+
+	invoke: function(method){
+		var defaultArgs = Array.prototype.slice.call(arguments,1);
+		return fn = function(obj){
+			var args = Array.prototype.slice.call(arguments,1);
+			return obj[method].apply(obj,args.length ? args : defaultArgs);
+		};
 	},
 
 	sequence: function(){
@@ -81,16 +95,18 @@ Function.extend({
 		or  = function(a,b){ return !!(a || b); };
 	new Hash({'xor':xor,'and': and,'or':or}).each(function(fn,fnName){
 		Function[fnName] = function(){
-			switch(arguments.length){
-				case 0: return undefined;
-				case 1: return !!arguments[0]();
-				default:
-					var first = arguments[0]();
-					// short-circuit and and or
-					if(fn===and && !first || fn===or && first) return !!first;
-					var rest = Array.prototype.slice.call(arguments,1);
-					return !!fn(first,arguments.callee.apply(this,rest));
-			}
+			var functions = Array.prototype.slice.apply(arguments);
+			return function(){
+				switch(functions.length) {
+					case 0: return undefined;
+					case 1: return !!functions[0].apply(this,arguments);
+					default:
+						var first = functions.shift().apply(this,arguments);
+						// short-circuit and and or
+						if(fn===and && !first || fn===or && first) return !!first;
+						return !!fn(first,arguments.callee.apply(this,functions));
+				}
+			};
 		};
 	});
 })()
@@ -138,6 +154,13 @@ Function.implement({
 		var curriedArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			return original.apply(this,curriedArgs.concat(passedArgs));
+		});
+	},
+
+	rcurry: function(){
+		var curriedArgs = Array.prototype.slice.call(arguments);
+		return this.wrap(function(original,passedArgs){
+			return original.apply(this,passedArgs.concat(curriedArgs));
 		});
 	},
 

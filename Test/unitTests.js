@@ -8,13 +8,13 @@ describe('_ / Function._', {
 		(function(){
 			for(var i=0, l=arguments.length; i<l; i++)
 				value_of(_()).should_be(arguments[i]);
-		}).apply({},testValues);
+		}).apply(this,testValues);
 	},
 	'arbitrary arguments': function() {
 		(function(){
 			for(var i=0, l=arguments.length; i<l; i++)
 				value_of(_(i)).should_be(arguments[i]);
-		}).apply({},testValues);
+		}).apply(this,testValues);
 
 	},
 	'mixing arbitrarily accessed arguments with successive arguments': function(){
@@ -53,6 +53,7 @@ describe('Function.identity', {
 	'return whatever is passed': function(){
 		testValues.each(function(val,index){
 			value_of(Function.identity(val)).should_be(val);
+			value_of(Function.identity(val,index)).should_be([val,index]);
 		});
 	}
 });
@@ -67,6 +68,31 @@ describe('Function.lambda', {
 				value_of(Function.lambda(val)(arg)).should_be(val);
 			});
 		});
+	}
+});
+
+describe('Function.pluck', {
+	before: function(){
+		length = Function.pluck('length');
+	},
+	'pluck': function(){
+		value_of(length("12345")).should_be(5);
+		value_of(length([0,0,0])).should_be(3);
+		value_of(length({test:123,length:"str"})).should_be("str");
+	}
+});
+
+describe('Function.invoke', {
+	before: function(){
+		hasOwnProperty = Function.invoke('hasOwnProperty','hasOwnProperty');
+		hasOwnProperty0 = Function.invoke('hasOwnProperty',0);
+	},
+	'invoke': function(){
+		value_of(hasOwnProperty([2],0)).should_be(true);
+		value_of(hasOwnProperty([2],1)).should_be(false);
+		value_of(hasOwnProperty([])).should_be(false);
+		value_of(hasOwnProperty0([2])).should_be(true);
+		value_of(hasOwnProperty0([])).should_be(false);
 	}
 });
 
@@ -175,7 +201,7 @@ describe('Function.overload',{
 	},
 	'preserve scope': function(){
 		var fn = function(){ return this; },
-			expected = {};
+			expected = "expected string";
 		var overload = Function.overload(fn,fn);
 		value_of(overload.call(expected)).should_be(expected);
 	}
@@ -188,69 +214,88 @@ describe('Boolean function logic',{
 		fnF = function(){ shared=false; return false; };
 	},
 	'and': function(){
-		value_of(Function.and()).should_be_undefined();
-		value_of(Function.and(fnT)).should_be_true();
-		value_of(Function.and(fnF)).should_be_false();
-		value_of(Function.and(fnT,fnT)).should_be_true();
-		value_of(Function.and(fnT,fnF)).should_be_false();
-		value_of(Function.and(fnF,fnT)).should_be_false();
-		value_of(Function.and(fnF,fnF)).should_be_false();
-		value_of(Function.and(fnT,fnT,fnT)).should_be_true();
-		value_of(Function.and(fnT,fnT,fnF)).should_be_false();
-		value_of(Function.and(fnT,fnF,fnT)).should_be_false();
-		value_of(Function.and(fnT,fnF,fnF)).should_be_false();
-		value_of(Function.and(fnF,fnT,fnT)).should_be_false();
-		value_of(Function.and(fnF,fnT,fnF)).should_be_false();
-		value_of(Function.and(fnF,fnF,fnT)).should_be_false();
-		value_of(Function.and(fnF,fnF,fnF)).should_be_false();
+		value_of(Function.and()()).should_be_undefined();
+		value_of(Function.and(fnT)()).should_be_true();
+		value_of(Function.and(fnF)()).should_be_false();
+		value_of(Function.and(fnT,fnT)()).should_be_true();
+		value_of(Function.and(fnT,fnF)()).should_be_false();
+		value_of(Function.and(fnF,fnT)()).should_be_false();
+		value_of(Function.and(fnF,fnF)()).should_be_false();
+		value_of(Function.and(fnT,fnT,fnT)()).should_be_true();
+		value_of(Function.and(fnT,fnT,fnF)()).should_be_false();
+		value_of(Function.and(fnT,fnF,fnT)()).should_be_false();
+		value_of(Function.and(fnT,fnF,fnF)()).should_be_false();
+		value_of(Function.and(fnF,fnT,fnT)()).should_be_false();
+		value_of(Function.and(fnF,fnT,fnF)()).should_be_false();
+		value_of(Function.and(fnF,fnF,fnT)()).should_be_false();
+		value_of(Function.and(fnF,fnF,fnF)()).should_be_false();
 	},
 	'or': function(){
-		value_of(Function.or()).should_be_undefined();
-		value_of(Function.or(fnT)).should_be_true();
-		value_of(Function.or(fnF)).should_be_false();
-		value_of(Function.or(fnT,fnT)).should_be_true();
-		value_of(Function.or(fnT,fnF)).should_be_true();
-		value_of(Function.or(fnF,fnT)).should_be_true();
-		value_of(Function.or(fnF,fnF)).should_be_false();
-		value_of(Function.or(fnT,fnT,fnT)).should_be_true();
-		value_of(Function.or(fnT,fnT,fnF)).should_be_true();
-		value_of(Function.or(fnT,fnF,fnT)).should_be_true();
-		value_of(Function.or(fnT,fnF,fnF)).should_be_true();
-		value_of(Function.or(fnF,fnT,fnT)).should_be_true();
-		value_of(Function.or(fnF,fnT,fnF)).should_be_true();
-		value_of(Function.or(fnF,fnF,fnT)).should_be_true();
-		value_of(Function.or(fnF,fnF,fnF)).should_be_false();
+		value_of(Function.or()()).should_be_undefined();
+		value_of(Function.or(fnT)()).should_be_true();
+		value_of(Function.or(fnF)()).should_be_false();
+		value_of(Function.or(fnT,fnT)()).should_be_true();
+		value_of(Function.or(fnT,fnF)()).should_be_true();
+		value_of(Function.or(fnF,fnT)()).should_be_true();
+		value_of(Function.or(fnF,fnF)()).should_be_false();
+		value_of(Function.or(fnT,fnT,fnT)()).should_be_true();
+		value_of(Function.or(fnT,fnT,fnF)()).should_be_true();
+		value_of(Function.or(fnT,fnF,fnT)()).should_be_true();
+		value_of(Function.or(fnT,fnF,fnF)()).should_be_true();
+		value_of(Function.or(fnF,fnT,fnT)()).should_be_true();
+		value_of(Function.or(fnF,fnT,fnF)()).should_be_true();
+		value_of(Function.or(fnF,fnF,fnT)()).should_be_true();
+		value_of(Function.or(fnF,fnF,fnF)()).should_be_false();
 	},
 	'xor': function(){
-		value_of(Function.xor()).should_be_undefined();
-		value_of(Function.xor(fnT)).should_be_true();
-		value_of(Function.xor(fnF)).should_be_false();
-		value_of(Function.xor(fnT,fnT)).should_be_false();
-		value_of(Function.xor(fnT,fnF)).should_be_true();
-		value_of(Function.xor(fnF,fnT)).should_be_true();
-		value_of(Function.xor(fnF,fnF)).should_be_false();
-		value_of(Function.xor(fnT,fnT,fnT)).should_be_true();
-		value_of(Function.xor(fnT,fnT,fnF)).should_be_false();
-		value_of(Function.xor(fnT,fnF,fnT)).should_be_false();
-		value_of(Function.xor(fnT,fnF,fnF)).should_be_true();
-		value_of(Function.xor(fnF,fnT,fnT)).should_be_false();
-		value_of(Function.xor(fnF,fnT,fnF)).should_be_true();
-		value_of(Function.xor(fnF,fnF,fnT)).should_be_true();
-		value_of(Function.xor(fnF,fnF,fnF)).should_be_false();
+		value_of(Function.xor()()).should_be_undefined();
+		value_of(Function.xor(fnT)()).should_be_true();
+		value_of(Function.xor(fnF)()).should_be_false();
+		value_of(Function.xor(fnT,fnT)()).should_be_false();
+		value_of(Function.xor(fnT,fnF)()).should_be_true();
+		value_of(Function.xor(fnF,fnT)()).should_be_true();
+		value_of(Function.xor(fnF,fnF)()).should_be_false();
+		value_of(Function.xor(fnT,fnT,fnT)()).should_be_true();
+		value_of(Function.xor(fnT,fnT,fnF)()).should_be_false();
+		value_of(Function.xor(fnT,fnF,fnT)()).should_be_false();
+		value_of(Function.xor(fnT,fnF,fnF)()).should_be_true();
+		value_of(Function.xor(fnF,fnT,fnT)()).should_be_false();
+		value_of(Function.xor(fnF,fnT,fnF)()).should_be_true();
+		value_of(Function.xor(fnF,fnF,fnT)()).should_be_true();
+		value_of(Function.xor(fnF,fnF,fnF)()).should_be_false();
+	},
+	'arguments are passed': function(){
+		var id = Function.identity,
+			expected = 0, expected2 = 1;
+		var verify = function(a,b){
+			console.log(a);
+			value_of(a).should_be(expected);
+			value_of(a).should_not_be(expected2);
+			value_of(b).should_be(expected2);
+			value_of(b).should_not_be(expected);
+			return true;
+		};
+		value_of(Function.xor(id,id.not())(true)).should_be(true);
+		value_of(Function.and(verify,id)(expected,expected2)).should_be(true);
+	},
+	'context is preserved': function(){
+		var expected = 22;
+		var context = function(){ value_of(this).should_be(expected); return true; }
+		value_of(Function.and(context,context).call(expected)).should_be(true);
 	},
 	'short-circuit': function(){
 		shared = true;
-		Function.and(fnF,fnT);
+		Function.and(fnF,fnT)();
 		value_of(shared).should_be(false);
 		shared = true;
-		Function.and(fnT,fnF,fnT,fnT);
+		Function.and(fnT,fnF,fnT,fnT)();
 		value_of(shared).should_be(false);
 
 		shared = false;
-		Function.or(fnT,fnF);
+		Function.or(fnT,fnF)();
 		value_of(shared).should_be(true);
 		shared = false;
-		Function.or(fnF,fnT,fnF,fnF);
+		Function.or(fnF,fnT,fnF,fnF)();
 		value_of(shared).should_be(true);
 	}
 });
@@ -291,7 +336,7 @@ describe('Function::wrap',{
 		value_of(fn.getArity()).should_be(1);
 	},
 	'wrapped function may be bound on wrap': function(){
-		var expected = {};
+		var expected = "expected string";
 		(function(){ return this; }).wrap(function(original,args){
 			value_of(original.apply(expected,args)).should_be(expected);
 		},expected)()
@@ -329,7 +374,7 @@ describe('Function::memoize',{
 	},
 	'memos can be specified and return values can be overridden': function(){
 		var memos = {};
-		memos[[1,2]] = {};
+		memos[[1,2]] = [0,,"str"];
 		memos[2] = false;
 		memos[3] = false;
 		var fn = memoizeMe.memoize(memos);
@@ -366,6 +411,20 @@ describe('Function::curry',{
 		value_of(some(3,4)).should_be([1,2,3,4]);
 		value_of(most()).should_be([1,2,3]);
 		value_of(most(4,5)).should_be([1,2,3,4,5]);
+	}
+});
+
+describe('Function::rcurry',{
+	before: function(){
+		fn = function(){ return [].slice.call(arguments); };
+		some = fn.rcurry(4,5);
+		most = some.rcurry(3);
+	},
+	'functions may be (right) curried': function(){
+		value_of(some()).should_be([4,5]);
+		value_of(some(2,3)).should_be([2,3,4,5]);
+		value_of(most()).should_be([3,4,5]);
+		value_of(most(1,2)).should_be([1,2,3,4,5]);
 	}
 });
 
@@ -495,7 +554,7 @@ describe('Function::overload',{
 	},
 	'preserve scope': function(){
 		var fn = function(){ return this; },
-			expected = {};
+			expected = "expected string";
 		var overload = fn.overload(fn,fn);
 		value_of(overload.call(expected)).should_be(expected);
 	}
