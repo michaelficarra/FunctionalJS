@@ -362,11 +362,7 @@ TODO
 * toFunction()
 * saturate(\[args\]\*)
 * aritize(n)
-* reduceRight(arr,init)
-* Function.and()
-* Function.or()
-* Function.xor()
-
+* document boolean functions
 
 Known Issues
 ------------
