@@ -11,6 +11,10 @@ tags: [
     identity,
     # Function.lambda
     lambda,
+    # Function.pluck
+    pluck,
+    # Function.invoke
+    invoke,
     # Function.combine,
     sequence, combine, concat, concatenate,
     # Function.compose
@@ -23,8 +27,8 @@ tags: [
     memo, memoize, memoization, cache, caching,
     # partial()
     partial, default, arguments,
-    # curry()
-    curry, default arguments,
+    # curry(), rcurry()
+    curry, rcurry, default arguments,
     # not()
     not,
     # prepend()
