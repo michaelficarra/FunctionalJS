@@ -52,7 +52,7 @@ Function.extend({
 		var functions = Array.prototype.slice.call(arguments);
 		return function(){
 			var result,
-				args = Array.prototype.slice.call(arguments);
+				args = arguments;
 			functions.each(function(fn){
 				result = fn.apply(this,args);
 			},this);
@@ -115,6 +115,20 @@ Function.extend({
 // instance methods
 Function.implement({
 
+	toFunction: function(){ return this; },
+
+	traced: function(name){
+		return this.wrap(function(fn,args){
+			var log = console && console.log ? console.log.bind(console) : (log || Function.empty),
+				ret = fn.apply(this,args);
+			log('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+'... (',fn,')');
+			log('  Arguments: ',args);
+			log('  Context: ',this);
+			log('  Return value: ',ret);
+			return ret;
+		});
+	},
+
 	wrap: function(fn,bind){
 		var that = this;
 		var ret = function(){
@@ -125,13 +139,18 @@ Function.implement({
 		return ret;
 	},
 
+	getOrigin: function(){
+		var origin = this;
+		while(origin._origin) origin = origin._origin;
+		return origin;
+	},
+
 	memoize: function(memos){
 		memos = memos || {};
 		var that = this;
 		return this.wrap(function(original,args){
-			var origin = this;
-			while(origin._origin) origin = origin._origin;
-			var key = [origin,args];
+			var context = (typeof this)==="function" ? this.getOrigin() : this;
+			var key = [context,args];
 			if(memos[key] !== undefined) return memos[key];
 			if(memos[args] !== undefined) return memos[args];
 			if(args.length===1 && memos[args[0]] !== undefined) return memos[args[0]];
@@ -195,9 +214,21 @@ Function.implement({
 		}
 	},
 
+	saturate: function(){
+		var args = arguments;
+		return this.wrap(function(fn){
+			return fn.apply(this,args);
+		});
+	},
+
+	aritize: function(length){
+		return this.wrap(function(fn,args){
+			return fn.apply(this,args.slice(0,length));
+		});
+	},
+
 	getArgs: function(){
-		var fn = this;
-		while(fn._origin) fn = fn._origin;
+		var fn = this.getOrigin();
 		var args = fn.toString().match(/function\s*\S*?\((.*?)\)/)[1].split(/\s*,\s*/);
 		return args.filter(function(_){ return _ !== ""; });
 	},

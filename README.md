@@ -359,14 +359,16 @@ placeholder for undefined arguments rather than passing `undefined`.
 TODO
 ----
 
-* traced(\[functionName\])
-* toFunction()
-* saturate(\[args\]\*)
-* aritize(n)
+* document updates to Function.identity
 * document Function.pluck
 * document Function.invoke
+* document Function::traced
+* document Function::getOrigin
+* document Function::toFunction
 * document Function::rcurry
-* document boolean functions
+* document Function::saturate
+* document Function::aritize
+* document Function.and, Function.or, Function.xor
 
 Known Issues
 ------------

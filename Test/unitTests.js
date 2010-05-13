@@ -17,7 +17,7 @@ describe('_ / Function._', {
 		}).apply(this,testValues);
 
 	},
-	'mixing arbitrarily accessed arguments with successive arguments': function(){
+	'mixing arbitrarily accessed arguments with successive arguments (known chrome bug)': function(){
 		(function(){
 			value_of(_()).should_be(0);
 			value_of(_()).should_be(1);
@@ -268,7 +268,6 @@ describe('Boolean function logic',{
 		var id = Function.identity,
 			expected = 0, expected2 = 1;
 		var verify = function(a,b){
-			console.log(a);
 			value_of(a).should_be(expected);
 			value_of(a).should_not_be(expected2);
 			value_of(b).should_be(expected2);
@@ -297,6 +296,34 @@ describe('Boolean function logic',{
 		shared = false;
 		Function.or(fnF,fnT,fnF,fnF)();
 		value_of(shared).should_be(true);
+	}
+});
+
+describe('Function::toFunction',{
+	before: function(){
+
+	},
+	'toFunction': function(){
+		value_of(Function.empty.toFunction()).should_be(Function.empty);
+		value_of(Function.identity.toFunction()).should_be(Function.identity);
+		value_of(Function.prototype.toFunction.toFunction()).should_be(Function.prototype.toFunction);
+	}
+});
+
+describe('Function::traced',{
+	before: function(){
+		fn = function(){ return {context: this, args: Array.prototype.slice.call(arguments)}; };
+		traced = fn.traced('fn');
+	},
+	'traced function wraps original': function(){
+		value_of(traced).should_not_be(fn);
+		value_of(traced._origin).should_be(fn);
+	},
+	'arguments are passed through': function(){
+		value_of(traced.apply(this,testValues).args).should_be(testValues);
+	},
+	'context is preserved': function(){
+		value_of(traced.call(testValues).context).should_be(testValues);
 	}
 });
 
@@ -340,6 +367,20 @@ describe('Function::wrap',{
 		(function(){ return this; }).wrap(function(original,args){
 			value_of(original.apply(expected,args)).should_be(expected);
 		},expected)()
+	}
+});
+
+describe('Function::getOrigin',{
+	before: function(){
+		fn = function(){};
+		wrapped = fn.wrap(function(){});
+		wrappedTwice = fn.wrap(function(){}).wrap(function(){});
+	},
+	'origin is preserved': function(){
+		value_of(wrapped).should_not_be(fn);
+		value_of(wrapped.getOrigin()).should_be(fn);
+		value_of(wrappedTwice).should_not_be(fn);
+		value_of(wrappedTwice.getOrigin()).should_be(fn);
 	}
 });
 
@@ -557,6 +598,31 @@ describe('Function::overload',{
 			expected = "expected string";
 		var overload = fn.overload(fn,fn);
 		value_of(overload.call(expected)).should_be(expected);
+	}
+});
+
+describe('Function::saturate',{
+	before: function(){
+		
+	},
+	'arguments are fixed': function(){
+		value_of(Function.identity.saturate(1,2)()).should_be([1,2]);
+		value_of(Function.identity.saturate(1,2)(3,4)).should_be([1,2]);
+	},
+	'arguments can not be changed later': function(){
+		
+	},
+	'context is preserved': function(){
+		
+	}
+});
+
+describe('Function::aritize',{
+	before: function(){
+		
+	},
+	'fixed number of arguments are given regardless of number of supplied args': function(){
+		
 	}
 });
 
