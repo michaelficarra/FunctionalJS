@@ -58,6 +58,18 @@ describe('Function.identity', {
 	}
 });
 
+describe('Function.context', {
+	before: function(){
+		
+	},
+	'return the context': function(){
+		testValues.each(function(val,index){
+			value_of(Function.context.call(val)).should_be([undefined,null].contains(val) ? window : val);
+			value_of(Function.context.call(val,index,val)).should_be([undefined,null].contains(val) ? window : val);
+		});
+	}
+});
+
 describe('Function.lambda', {
 	before: function(){
 		
@@ -608,21 +620,39 @@ describe('Function::saturate',{
 	'arguments are fixed': function(){
 		value_of(Function.identity.saturate(1,2)()).should_be([1,2]);
 		value_of(Function.identity.saturate(1,2)(3,4)).should_be([1,2]);
-	},
-	'arguments can not be changed later': function(){
-		
+		value_of(Function.identity.saturate()()).should_be(undefined);
+		value_of(Function.identity.saturate()(1,2)).should_be(undefined);
+		value_of(Function.identity.saturate(1)()).should_be(1);
+		value_of(Function.identity.saturate(2)(1,2)).should_be(2);
 	},
 	'context is preserved': function(){
-		
+		value_of(Function.context.saturate().call(2)).should_be(2);
+		value_of(Function.context.saturate().call()).should_be(window);
 	}
 });
 
 describe('Function::aritize',{
 	before: function(){
-		
+		three = Function.identity.aritize(3);
+		zero = Function.identity.aritize(0);
+		negOne = Function.identity.aritize(-1);
 	},
 	'fixed number of arguments are given regardless of number of supplied args': function(){
-		
+		value_of(three(1,2,3,4)).should_have(3,"items");
+		value_of(three(1,2,3)).should_have(3,"items");
+		value_of(three(1,2)).should_have(2,"items");
+		value_of(three(1)).should_be(1);
+		value_of(three()).should_be(undefined);
+		value_of(zero(1,2)).should_be(undefined);
+		value_of(zero(1)).should_be(undefined);
+		value_of(zero()).should_be(undefined);
+	},
+	'negative values keep all but last <n> arguments': function(){
+		value_of(negOne(1,2,3,4)).should_have(3,"items");
+		value_of(negOne(1,2,3)).should_have(2,"items");
+		value_of(negOne(1,2)).should_be(1);
+		value_of(negOne(1)).should_be(undefined);
+		value_of(negOne()).should_be(undefined);
 	}
 });
 
