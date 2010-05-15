@@ -32,6 +32,8 @@ Function.extend({
 		return arguments.length>1 ? Array.prototype.slice.call(arguments) : _;
 	},
 
+	context: function(){ return this; },
+
 	lambda: function(_){
 		return function(){ return _; };
 	},
@@ -119,7 +121,7 @@ Function.implement({
 
 	traced: function(name){
 		return this.wrap(function(fn,args){
-			var log = console && console.log ? console.log.bind(console) : (log || Function.empty),
+			var log = window.console && console.log ? console.log.bind(console) : (window.log || Function.empty),
 				ret = fn.apply(this,args);
 			log('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+'... (',fn,')');
 			log('  Arguments: ',args);
