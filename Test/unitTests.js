@@ -110,14 +110,53 @@ describe('Function.invoke', {
 
 describe('Function.sequence', {
 	before: function(){
+		shared = [];
+		fn = function(_){
+			return function(){
+				return shared[shared.length] = _;
+			};
+		};
+	},
+	'functions are run sequentially': function(){
+		var seq = Function.sequence(fn(0),fn(1),fn(2));
+		value_of(shared).should_have(0,'items');
+		seq();
+		value_of(shared).should_be([0]);
+		seq();
+		value_of(shared).should_be([0,1]);
+		seq();
+		value_of(shared).should_be([0,1,2]);
+	},
+	'continues to the first function after running the last': function(){
+		var seq = Function.sequence(fn(0),fn(1),fn(2));
+		value_of(shared).should_have(0,'items');
+		(7).times(function(){ seq(); });
+		value_of(shared).should_be([0,1,2,0,1,2,0]);
+
+		shared = [];
+		var seq2 = Function.sequence(fn(0));
+		(7).times(function(){ seq2(); });
+		value_of(shared).should_be([0,0,0,0,0,0,0]);
+	},
+	'returns an empty function when given no arguments': function(){
+		var seq = Function.sequence();
+		value_of(seq).should_be(Function.empty);
+	}
+});
+
+describe('Function.concatenate', {
+	before: function(){
 		shared = "";
 		fnA = function(x){ shared += "A"+(x||"")+(this===window ? "" : this); };
 		fnB = function(x){ shared += "B"+(x||"")+(this===window ? "" : this); };
 		fnC = function(x){ shared += "C"+(x||"")+(this===window ? "" : this); };
 	},
-	'functions are sequenced': function(){
+	'Function.concatenate is aliased as Function.concat': function(){
+		value_of(Function.concat).should_be(Function.concatenate);
+	},
+	'functions are concatenated': function(){
 		value_of(shared).should_be_empty()
-		Function.sequence(
+		Function.concatenate(
 			fnA,
 			function(){ value_of(shared).should_be("A"); },
 			fnB,
@@ -128,7 +167,7 @@ describe('Function.sequence', {
 	},
 	'arguments are passed through': function(){
 		value_of(shared).should_be_empty()
-		Function.sequence(
+		Function.concatenate(
 			fnA,
 			function(){ value_of(shared).should_be("A1"); },
 			fnB,
@@ -139,7 +178,7 @@ describe('Function.sequence', {
 	},
 	'context correctly preserved': function(){
 		value_of(shared).should_be_empty()
-		Function.sequence(
+		Function.concatenate(
 			fnA,
 			function(){ value_of(shared).should_be("A12"); },
 			fnB,
@@ -325,7 +364,7 @@ describe('Function::toFunction',{
 describe('Function::traced',{
 	before: function(){
 		fn = function(){ return {context: this, args: Array.prototype.slice.call(arguments)}; };
-		traced = fn.traced('fn');
+		traced = fn.traced();
 	},
 	'traced function wraps original': function(){
 		value_of(traced).should_not_be(fn);

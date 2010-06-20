@@ -26,23 +26,23 @@ this._ = Function._ = function(_){
 // class methods
 Function.extend({
 
-	empty: function(){},
+	empty: function empty(){},
 
-	identity: function(_){
+	identity: function identity(_){
 		return arguments.length>1 ? Array.prototype.slice.call(arguments) : _;
 	},
 
-	context: function(){ return this; },
+	context: function context(){ return this; },
 
-	lambda: function(_){
-		return function(){ return _; };
+	lambda: function lambda(_){
+		return function lambdaFunc(){ return _; };
 	},
 
-	pluck: function(property){
-		return function(obj){ return obj[property]; };
+	pluck: function pluck(property){
+		return function pluck(obj){ return obj[property]; };
 	},
 
-	invoke: function(method){
+	invoke: function invoke(method){
 		var defaultArgs = Array.prototype.slice.call(arguments,1);
 		return fn = function(obj){
 			var args = Array.prototype.slice.call(arguments,1);
@@ -50,9 +50,24 @@ Function.extend({
 		};
 	},
 
-	sequence: function(){
+	sequence: function sequence(){
+		switch(arguments.length) {
+			case 0: return Function.empty;
+			case 1: return arguments[0];
+			default:
+				var functions = Array.prototype.slice.call(arguments);
+				return (function(idx){
+					return function sequenced(){
+						idx %= functions.length;
+						return functions[idx++].apply(this,arguments);
+					};
+				}).call(this,0);
+		};
+	},
+
+	concatenate: function concatenate(){
 		var functions = Array.prototype.slice.call(arguments);
-		return function(){
+		return function concatenated(){
 			var result,
 				args = arguments;
 			functions.each(function(fn){
@@ -62,9 +77,9 @@ Function.extend({
 		};
 	},
 
-	compose: function(){
+	compose: function compose(){
 		var args = Array.prototype.slice.call(arguments);
-		return function(){
+		return function composed(){
 			var lastReturn = Array.prototype.slice.call(arguments);
 			args.reverse().each(function(fn){
 				lastReturn = [fn.apply(this,lastReturn)]
@@ -73,7 +88,7 @@ Function.extend({
 		}
 	},
 
-	overload: function(funcTable){
+	overload: function overload(funcTable){
 		if(!funcTable || typeof funcTable === 'function'){
 			var newTable = {};
 			for(var i=0, l=arguments.length; i<l; i++){
@@ -88,6 +103,10 @@ Function.extend({
 		};
 	}
 
+});
+
+Function.extend({
+	'concat': Function.concatenate
 });
 
 // Boolean function logic
@@ -117,37 +136,44 @@ Function.extend({
 // instance methods
 Function.implement({
 
-	toFunction: function(){ return this; },
+	toFunction: function toFunction(){ return this; },
 
-	traced: function(name){
+	traced: function traced(name){
 		return this.wrap(function(fn,args){
-			var log = window.console && console.log ? console.log.bind(console) : (window.log || Function.empty),
+			name = name || fn.getOrigin().toString().match(/^function\s*([^\(\s]*)\(/)[1];
+			var console = window.console,
+				log = (console && console.log) ? console.log.bind(console) : (window.log || Function.empty),
+				group = (console && console.group) || log,
+				groupEnd = (console && console.groupEnd) || Function.empty,
+				trace = (console && console.trace) || Function.empty,
 				ret = fn.apply(this,args);
-			log('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+'... (',fn,')');
-			log('  Arguments: ',args);
-			log('  Context: ',this);
-			log('  Return value: ',ret);
+			group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
+			log(' Arguments: ',args);
+			log(' Context: ',this);
+			log(' Return value: ',ret);
+			trace();
+			groupEnd();
 			return ret;
 		});
 	},
 
-	wrap: function(fn,bind){
+	wrap: function wrap(fn,bind){
 		var that = this;
-		var ret = function(){
+		var wrapper = function wrapper(){
 			var args = Array.prototype.slice.call(arguments);
 			return fn.call(this,(bind ? that.bind(bind) : that),args);
 		};
-		ret._origin = this;
-		return ret;
+		wrapper._origin = this;
+		return wrapper;
 	},
 
-	getOrigin: function(){
+	getOrigin: function getOrigin(){
 		var origin = this;
 		while(origin._origin) origin = origin._origin;
 		return origin;
 	},
 
-	memoize: function(memos){
+	memoize: function memoize(memos){
 		memos = memos || {};
 		var that = this;
 		return this.wrap(function(original,args){
@@ -160,7 +186,7 @@ Function.implement({
 		});
 	},
 
-	partial: function(){
+	partial: function partial(){
 		var partialArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			var collectedArgs = [];
@@ -171,42 +197,42 @@ Function.implement({
 		});
 	},
 
-	curry: function(){
+	curry: function curry(){
 		var curriedArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			return original.apply(this,curriedArgs.concat(passedArgs));
 		});
 	},
 
-	rcurry: function(){
+	rcurry: function rcurry(){
 		var curriedArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			return original.apply(this,passedArgs.concat(curriedArgs));
 		});
 	},
 
-	not: function(){
+	not: function not(){
 		if(arguments.length) return this.not().apply(this,arguments);
 		return this.wrap(function(fn,args){
 			return !fn.apply(this,args);
 		});
 	},
 
-	prepend: function(fn){
+	prepend: function prepend(fn){
 		return this.wrap(function(self,args){
 			fn.apply(this,args);
 			return self.apply(this,args);
 		});
 	},
 
-	append: function(fn){
+	append: function append(fn){
 		return this.wrap(function(self,args){
 			self.apply(this,args);
 			return fn.apply(this,args);
 		});
 	},
 
-	overload: function(funcTable){
+	overload: function overload(funcTable){
 		if(!funcTable || typeof funcTable === 'function') {
 			var others = Array.prototype.slice.call(arguments);
 			return Function.overload.apply(null,others.concat(this));
@@ -216,26 +242,26 @@ Function.implement({
 		}
 	},
 
-	saturate: function(){
+	saturate: function saturate(){
 		var args = arguments;
 		return this.wrap(function(fn){
 			return fn.apply(this,args);
 		});
 	},
 
-	aritize: function(length){
+	aritize: function aritize(length){
 		return this.wrap(function(fn,args){
 			return fn.apply(this,args.slice(0,length));
 		});
 	},
 
-	getArgs: function(){
+	getArgs: function getArgs(){
 		var fn = this.getOrigin();
 		var args = fn.toString().match(/function\s*\S*?\((.*?)\)/)[1].split(/\s*,\s*/);
 		return args.filter(function(_){ return _ !== ""; });
 	},
 
-	getArity: function(){
+	getArity: function getArity(){
 		return this.arity || this.length || this.getArgs().length;
 	}
 
@@ -244,7 +270,7 @@ Function.implement({
 // cache arglists
 (function(){
 	var original = Function.prototype.getArgs;
-	Function.prototype.getArgs = (function(){ return original.apply(this,arguments); }).memoize();
+	Function.prototype.getArgs = (function getArgs(){ return original.apply(this,arguments); }).memoize();
 })();
 
 

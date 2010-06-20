@@ -19,7 +19,7 @@ is listed below.
 Class Methods
 -------------
 
-### Function.empty
+### Function.empty => undefined
 Returns `undefined` for any given value. Useful when overriding
 another function and desiring no action.
 
@@ -29,8 +29,9 @@ another function and desiring no action.
 	Function.empty(null)		// undefined
 	Function.empty(true)		// undefined
 
-### Function.identity(value)
-Returns whatever value is given. Useful when a function is expected
+### Function.identity (value) => value
+Returns whatever value is given. When many values are given, returns
+an array containing those values. Useful when a function is expected
 and one would like to pass the provided value.
 
 	Function.identity(0)				// 0
@@ -39,8 +40,16 @@ and one would like to pass the provided value.
 	Function.identity(null)				// null
 	Function.identity(function(){})		// <#Function>
 	Function.identity()					// undefined
+	Function.identity(0,1,2)			// [0,1,2]
+	Function.identity(0,undefined)		// [0,undefined]
 
-### Function.lambda(value)
+### Function.context () => mixed
+A function that returns its context (the `this` value).
+
+	Function.context()				// global scope object, likely window
+	Function.context.call(1,2)		// 1
+
+### Function.lambda (value) => function() => value
 Returns a function that returns the value passed to `Function.lambda`.
 
 	var fn = Function.lambda("lambda")	// <#Function:fn>
@@ -48,12 +57,57 @@ Returns a function that returns the value passed to `Function.lambda`.
 	fn(false)	// "lambda"
 	fn(18)		// "lambda"
 
-### Function.pluck(property)
+### Function.pluck (property) => function(obj) => obj[property]
+Returns a function that returns the property of the passed object
+referenced by the argument passed to `Function.pluck`.
 
-### Function.invoke(method)
+	var arr = [[0],[1,2,3],[2,3]],
+		len = Function.pluck('length')
+	arr.map(Function.pluck(0))			// [0,1,2]
+	arr.map(Function.pluck(1))			// [undefined,2,3]
+	arr.map(len)						// [1,3,2]
+	len(arr)							// 3
+	len("string")						// 6
+	len({test:"abc",length:"def"})		// "def"
 
-### Function.sequence(\[fn\]\*)
-Creates a function that runs all functions passed to `Function.sequence`
+### Function.invoke (method\[, defaultArg\]*) => function(obj) => mixed
+Returns a function that calls the method referenced by the first
+argument passed to `Function.invoke` of the passed object. Any
+additional arguments passed to `Function.invoke` will be used as the
+default arguments to be passed the given method by the generated
+function. Any arguments passed to the generated function beyond the
+first will be passed to the function it calls instead of passing the
+default arguments.
+
+	var hasOwnProperty = Function.invoke('hasOwnProperty','hasOwnProperty'),
+		hasOwnProperty0 = Function.invoke('hasOwnProperty',0)
+	hasOwnProperty(['a'],0)		// true
+	hasOwnProperty([2],1)		// false
+	hasOwnProperty([])			// false
+	hasOwnProperty0([2])		// true
+	hasOwnProperty0([])			// false
+
+### Function.sequence (\[fn\]\*) => function(\[arg\]*) => mixed
+Creates a function that calls the first passed function on the first
+call, the second passed function on the next call (if one was passed),
+and so on. The last function is treated as if it proceeds the first
+function. Arguments passed to the generated function are passed to
+the passed functions. The return value is the return value of the
+passed function. When called with no arguments, Function.sequence
+returns Function.empty.
+
+	var fn1 = function(a){ return 1; },
+		fn2 = function(a){ return 2; },
+		fn3 = function(a){ return 3; },
+		seq = Function.sequence(fn1,fn2,fn3);
+	seq();		// 1
+	seq();		// 2
+	seq();		// 3
+	seq();		// 1
+	seq();		// 2
+
+### Function.concat / Function.concatenate (\[fn\]\*) => function(\[arg\]\*) => mixed
+Creates a function that runs all functions passed to `Function.concat`
 sequentially. The return value of the last function is returned from
 the generated function. Arguments given to the generated function are
 passed to all functions run.
@@ -61,14 +115,14 @@ passed to all functions run.
 	var fnA = function(){ console.log('A'); },
 		fnB = function(){ console.log('BC'); },
 		fnC = function(_){ console.log(_+23); }
-	Function.sequence(fnA,fnB,fnC)(100)				// undefined
+	Function.concat(fnA,fnB,fnC)(100)				// undefined
 
 	// Console Output:
 	//  A
 	//  BC
 	//  123
 
-### Function.compose(\[fn\]\*)
+### Function.compose (\[fn\]\*) => function(\[arg\]\*) => mixed
 Creates a function that runs all functions passed in reverse order,
 passing the return value of the last function run as the input to the
 next function. Any arguments given to the generated function will be
@@ -80,7 +134,7 @@ passed to the first function called.
 		fn = Function.compose(a,b,c)
 	fn('d','e')		// "abcde"
 
-### Function.overload
+### Function.overload (\[fn\]\*) => function(\[arg\]\*) => mixed
 If an object having numeric keys is given as the sole argument,
 returns a function that will call the function indexed by the number
 of arguments passed to it. If a list of functions is given as
@@ -108,7 +162,7 @@ function.
 Instance Methods
 ----------------
 
-### wrap(fn\[, bind\])
+### wrap (\[fn\]\*) => function(\[arg\]\*) => mixed
 Returns a function that calls the given function, passing to it this
 function instance as the first argument and the arguments given to
 the generated function as the second argument.
@@ -359,9 +413,6 @@ placeholder for undefined arguments rather than passing `undefined`.
 TODO
 ----
 
-* document updates to Function.identity
-* document Function.pluck
-* document Function.invoke
 * document Function::traced
 * document Function::getOrigin
 * document Function::toFunction
@@ -369,6 +420,8 @@ TODO
 * document Function::saturate
 * document Function::aritize
 * document Function.and, Function.or, Function.xor
+* update all method signatures in documentation to include return values
+* update YAML header and package.yml to reflect final API
 
 Known Issues
 ------------
