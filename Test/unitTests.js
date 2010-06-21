@@ -2,7 +2,7 @@ var testValues = ["string","",0,2,null,false,/(?:)/,true,[0,,2],[],{},function()
 
 describe('_ / Function._', {
 	before: function(){
-		
+
 	},
 	'successive arguments': function() {
 		(function(){
@@ -33,9 +33,28 @@ describe('_ / Function._', {
 	}
 });
 
+describe('Function constants', {
+	before: function(){
+
+	},
+	'trace constants exist': function(){
+		var constants =
+			['TRACE_ALL'
+			,'TRACE_ARGUMENTS'
+			,'TRACE_CONTEXT'
+			,'TRACE_RETURN'
+			,'TRACE_TIME'
+			,'TRACE_STACK'
+			];
+		constants.each(function(constant){
+			value_of(Function[constant]).should_not_be_undefined();
+		})
+	}
+});
+
 describe('Function.empty', {
 	before: function(){
-		
+
 	},
 	'return undefined for any input': function(){
 		value_of(Function.empty()).should_be_undefined();
@@ -48,7 +67,7 @@ describe('Function.empty', {
 
 describe('Function.identity', {
 	before: function(){
-		
+
 	},
 	'return whatever is passed': function(){
 		testValues.each(function(val,index){
@@ -60,7 +79,7 @@ describe('Function.identity', {
 
 describe('Function.context', {
 	before: function(){
-		
+
 	},
 	'return the context': function(){
 		testValues.each(function(val,index){
@@ -72,7 +91,7 @@ describe('Function.context', {
 
 describe('Function.lambda', {
 	before: function(){
-		
+
 	},
 	'returned function returns whatever is passed': function(){
 		testValues.each(function(val){
@@ -375,6 +394,20 @@ describe('Function::traced',{
 	},
 	'context is preserved': function(){
 		value_of(traced.call(testValues).context).should_be(testValues);
+	},
+	'return values are preserved': function(){
+		value_of((function(){ return 22; }).traced()()).should_be(22);
+		value_of((function(){ return; }).traced()()).should_be_undefined();
+	},
+	'properly handles functions that cause exceptions': function(){
+		(function(){ throw new Error(); }).traced()();
+	},
+	'properly handles functions with console output': function(){
+		(function(){
+			console.log('line 1',window);
+			console.log('line 2',function(){});
+			console.log('line 3');
+		}).traced('consoleFn',Function.TRACE_ALL)(1,2,3);
 	}
 });
 
@@ -654,7 +687,7 @@ describe('Function::overload',{
 
 describe('Function::saturate',{
 	before: function(){
-		
+
 	},
 	'arguments are fixed': function(){
 		value_of(Function.identity.saturate(1,2)()).should_be([1,2]);
@@ -743,7 +776,7 @@ describe('Function::getArity',{
 
 describe('Array methods',{
 	before: function(){
-		
+
 	},
 	'array methods exist': function(){
 		var fn = function(){},
@@ -760,7 +793,7 @@ describe('Array methods',{
 
 describe('Array::toFunction, Hash::toFunction',{
 	before: function(){
-		
+
 	},
 	'Array::toFunction': function(){
 		var arr = [0,1,2,3];

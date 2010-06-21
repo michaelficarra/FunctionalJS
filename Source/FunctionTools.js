@@ -13,7 +13,7 @@ provides: [
 ... */
 
 
-// class properties and globals
+// class globals, properties, constants
 this._ = Function._ = function(_){
 	var caller = arguments.callee.caller || arguments.caller;
 	if(!caller) return;
@@ -22,6 +22,20 @@ this._ = Function._ = function(_){
 	return args[_===undefined ? args._ : _];
 };
 
+(function(){
+	var n=0,
+		constants =
+			['TRACE_ALL'
+			,'TRACE_ARGUMENTS'
+			,'TRACE_CONTEXT'
+			,'TRACE_RETURN'
+			,'TRACE_TIME'
+			,'TRACE_STACK'
+			];
+	constants.each(function(constant){
+		Function[constant] = n = n << 1 || 1;
+	});
+})();
 
 // class methods
 Function.extend({
@@ -138,20 +152,30 @@ Function.implement({
 
 	toFunction: function toFunction(){ return this; },
 
-	traced: function traced(name){
+	traced: function traced(name, opts){
+		opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
+		var all = opts & Function.TRACE_ALL,
+			console = window.console,
+			log = (console && console.log) ? console.log.bind(console) : Function.empty,
+			error = (console && console.error) ? console.error.bind(console) : Function.empty,
+			group = (console && console.group) || log,
+			groupEnd = (console && console.groupEnd) || Function.empty,
+			time = (console && console.time) || Function.empty,
+			timeEnd = (console && console.timeEnd) || Function.empty,
+			trace = (console && console.trace) || Function.empty;
 		return this.wrap(function(fn,args){
 			name = name || fn.getOrigin().toString().match(/^function\s*([^\(\s]*)\(/)[1];
-			var console = window.console,
-				log = (console && console.log) ? console.log.bind(console) : (window.log || Function.empty),
-				group = (console && console.group) || log,
-				groupEnd = (console && console.groupEnd) || Function.empty,
-				trace = (console && console.trace) || Function.empty,
-				ret = fn.apply(this,args);
 			group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
-			log(' Arguments: ',args);
-			log(' Context: ',this);
-			log(' Return value: ',ret);
-			trace();
+			var ret, exception, success = true;
+			if(all || opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
+			if(all || opts & Function.TRACE_CONTEXT) log(' Context: ',this);
+			if(all || opts & Function.TRACE_TIME) time(fn);
+			group('Console Output');
+			try { ret = fn.apply(this,args); } catch(e) { success = false; exception = e; }
+			groupEnd();
+			if(all || opts & Function.TRACE_TIME) timeEnd(fn);
+			if(all || opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error('failed',exception);
+			if(all || opts & Function.TRACE_STACK) trace();
 			groupEnd();
 			return ret;
 		});
