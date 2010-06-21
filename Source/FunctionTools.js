@@ -58,7 +58,7 @@ Function.extend({
 
 	invoke: function invoke(method){
 		var defaultArgs = Array.prototype.slice.call(arguments,1);
-		return fn = function(obj){
+		return function invoke(obj){
 			var args = Array.prototype.slice.call(arguments,1);
 			return obj[method].apply(obj,args.length ? args : defaultArgs);
 		};
@@ -76,7 +76,7 @@ Function.extend({
 						return functions[idx++].apply(this,arguments);
 					};
 				}).call(this,0);
-		};
+		}
 	},
 
 	concatenate: function concatenate(){
@@ -96,10 +96,10 @@ Function.extend({
 		return function composed(){
 			var lastReturn = Array.prototype.slice.call(arguments);
 			args.reverse().each(function(fn){
-				lastReturn = [fn.apply(this,lastReturn)]
+				lastReturn = [fn.apply(this,lastReturn)];
 			},this);
 			return lastReturn[0];
-		}
+		};
 	},
 
 	overload: function overload(funcTable){
@@ -128,7 +128,7 @@ Function.extend({
 	var xor = function(a,b){ return !!(!!a ^ !!b); },
 		and = function(a,b){ return !!(a && b); },
 		or  = function(a,b){ return !!(a || b); };
-	new Hash({'xor':xor,'and': and,'or':or}).each(function(fn,fnName){
+	new Hash({'xor':xor,'and':and,'or':or}).each(function(fn,fnName){
 		Function[fnName] = function(){
 			var functions = Array.prototype.slice.apply(arguments);
 			return function(){
@@ -144,7 +144,7 @@ Function.extend({
 			};
 		};
 	});
-})()
+})();
 
 
 // instance methods
@@ -199,7 +199,6 @@ Function.implement({
 
 	memoize: function memoize(memos){
 		memos = memos || {};
-		var that = this;
 		return this.wrap(function(original,args){
 			var context = (typeof this)==="function" ? this.getOrigin() : this;
 			var key = [context,args];
