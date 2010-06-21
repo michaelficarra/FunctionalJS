@@ -299,10 +299,10 @@ Function.implement({
 
 // implement array methods
 ['forEach','each','every','some','filter','map','reduce','reduceRight','sort'].each(function(fnStr){
+	if(Array.prototype[fnStr]===undefined) return;
 	var fn = function(){
 		var args = Array.prototype.slice.call(arguments);
 		var arr = args.shift();
-		if(arr[fnStr]===undefined) return;
 		return arr[fnStr].apply(arr,[this].concat(args));
 	};
 	fn._origin = Array.prototype[fnStr];
