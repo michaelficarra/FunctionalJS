@@ -31,7 +31,7 @@ this._ = Function._ = function(_){
 			,'TRACE_RETURN'
 			,'TRACE_TIME'
 			,'TRACE_STACK'
-			];
+		];
 	constants.each(function(constant){
 		Function[constant] = n = n << 1 || 1;
 	});
@@ -156,13 +156,13 @@ Function.implement({
 		opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
 		var all = opts & Function.TRACE_ALL,
 			console = window.console,
-			log = (console && console.log) ? console.log.bind(console) : Function.empty,
-			error = (console && console.error) ? console.error.bind(console) : Function.empty,
-			group = (console && console.group) || log,
-			groupEnd = (console && console.groupEnd) || Function.empty,
-			time = (console && console.time) || Function.empty,
-			timeEnd = (console && console.timeEnd) || Function.empty,
-			trace = (console && console.trace) || Function.empty;
+			log      = (console && console.log)      ? console.log.bind(console)      : Function.empty,
+			error    = (console && console.error)    ? console.error.bind(console)    : Function.empty,
+			group    = (console && console.group)    ? console.group.bind(console)    : log,
+			groupEnd = (console && console.groupEnd) ? console.groupEnd.bind(console) : Function.empty,
+			time     = (console && console.time)     ? console.time.bind(console)     : Function.empty,
+			timeEnd  = (console && console.timeEnd)  ? console.timeEnd.bind(console)  : Function.empty,
+			trace    = (console && console.trace)    ? console.trace.bind(console)    : Function.empty;
 		return this.wrap(function(fn,args){
 			name = name || fn.getOrigin().toString().match(/^function\s*([^\(\s]*)\(/)[1];
 			group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
