@@ -25,15 +25,15 @@ this._ = Function._ = function(_){
 (function(){
 	var n=0,
 		constants =
-			['TRACE_ALL'
-			,'TRACE_ARGUMENTS'
+			['TRACE_ARGUMENTS'
 			,'TRACE_CONTEXT'
 			,'TRACE_RETURN'
 			,'TRACE_TIME'
 			,'TRACE_STACK'
 		];
+	Function.TRACE_ALL = Function.TRACE_NONE = 0;
 	constants.each(function(constant){
-		Function[constant] = n = n << 1 || 1;
+		Function.TRACE_ALL |= Function[constant] = n = n << 1 || 1;
 	});
 })();
 
@@ -154,8 +154,7 @@ Function.implement({
 
 	traced: function traced(name, opts){
 		opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
-		var all = opts & Function.TRACE_ALL,
-			console = window.console,
+		var console = window.console,
 			log      = (console && console.log)      ? console.log.bind(console)      : Function.empty,
 			error    = (console && console.error)    ? console.error.bind(console)    : Function.empty,
 			group    = (console && console.group)    ? console.group.bind(console)    : log,
@@ -167,15 +166,15 @@ Function.implement({
 			name = name || fn.getOrigin().toString().match(/^function\s*([^\(\s]*)\(/)[1];
 			group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
 			var ret, exception, success = true;
-			if(all || opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
-			if(all || opts & Function.TRACE_CONTEXT) log(' Context: ',this);
-			if(all || opts & Function.TRACE_TIME) time(fn);
+			if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
+			if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
+			if(opts & Function.TRACE_TIME) time(fn);
 			group('Console Output');
 			try { ret = fn.apply(this,args); } catch(e) { success = false; exception = e; }
 			groupEnd();
-			if(all || opts & Function.TRACE_TIME) timeEnd(fn);
-			if(all || opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error('failed',exception);
-			if(all || opts & Function.TRACE_STACK) trace();
+			if(opts & Function.TRACE_TIME) timeEnd(fn);
+			if(opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error('failed',exception);
+			if(opts & Function.TRACE_STACK) trace();
 			groupEnd();
 			return ret;
 		});
