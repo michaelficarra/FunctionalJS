@@ -163,8 +163,8 @@ Function.implement({
 			timeEnd  = (console && console.timeEnd)  ? console.timeEnd.bind(console)  : Function.empty,
 			trace    = (console && console.trace)    ? console.trace.bind(console)    : Function.empty;
 		return this.wrap(function(fn,args){
-			name = name || fn.getOrigin().toString().match(/^function\s*([^\(\s]*)\(/)[1];
-			group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
+			name = name || fn.getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1];
+			group('Called '+(name ? '"'+name.replace('"','\\"')+'"' : 'anonymous function')+' (',fn,')');
 			var ret, exception, success = true;
 			if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
 			if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
@@ -173,7 +173,7 @@ Function.implement({
 			try { ret = fn.apply(this,args); } catch(e) { success = false; exception = e; }
 			groupEnd();
 			if(opts & Function.TRACE_TIME) timeEnd(fn);
-			if(opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error('failed',exception);
+			if(opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error(exception);
 			if(opts & Function.TRACE_STACK) trace();
 			groupEnd();
 			return ret;
@@ -279,7 +279,7 @@ Function.implement({
 
 	getArgs: function getArgs(){
 		var fn = this.getOrigin();
-		var args = fn.toString().match(/function\s*\S*?\((.*?)\)/)[1].split(/\s*,\s*/);
+		var args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/);
 		return args.filter(function(_){ return _ !== ""; });
 	},
 

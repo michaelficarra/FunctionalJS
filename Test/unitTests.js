@@ -731,9 +731,11 @@ describe('Function::aritize',{
 describe('Function::getArgs',{
 	before: function(){
 		fn0 = function(){};
-		fn1 = function(a){};
-		fn2 = function(a,b){};
-		fn3 = function(a,b,c){};
+		fn1 = function one(a){};
+		fn2 = function _two (a,b){};
+		fn3 = function $thr3e (a,b,c){
+			return function(d,e){};
+		};
 	},
 	'correct number of arguments are returned': function(){
 		value_of(fn0.getArgs().length).should_be(0);
