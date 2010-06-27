@@ -452,7 +452,7 @@ describe('Function::wrap',{
 		(function(){ return this; }).wrap(function(original,args){
 			value_of(original.apply(expected,args)).should_be(expected);
 		},expected)()
-	}
+	},
 	'falsey values may be bound to wrapped functions': function(){
 		var expected = "";
 		(function(){ return this; }).wrap(function(original,args){
@@ -481,8 +481,18 @@ describe('Function::memoize',{
 		powerOfTwo = function(n){ return n>0 && !(n&(n-1)); };
 		memoizeMe = function(n){ shared=true; if(n) return powerOfTwo(n); return false; }
 	},
+	'memoizes functions': function(){
+		var fn = Function.identity.memoize(),
+			a, b, c, d, e;
+		value_of(fn(a={a:1})===a).should_be_true();
+		value_of(fn({a:1})!==a).should_be_true();
+		value_of(fn(b=[c=function(){},d={b:2}])===b).should_be_true();
+		value_of(fn(e=[c,d])!==b).should_be_true();
+		value_of(fn(e)[0]===c).should_be_true();
+		value_of(fn(e)[1]===d).should_be_true();
+	},
 	'return values are cached': function(){
-		var fn = memoizeMe.memoize();
+		var fn = function(){ shared = true; }.memoize();
 		shared = false;
 		value_of(shared).should_be_false();
 		fn(1,2);
@@ -505,15 +515,16 @@ describe('Function::memoize',{
 		value_of(shared).should_be_false();
 	},
 	'memos can be specified and return values can be overridden': function(){
-		var memos = {};
-		memos[[1,2]] = [0,,"str"];
-		memos[2] = false;
-		memos[3] = false;
+		var memos = [
+			{args: [1,2], returnValue: [0,,"str"]},
+			{args: 2, returnValue: false},
+			{args: 3, returnValue: false}
+		];
 		var fn = memoizeMe.memoize(memos);
-		value_of(fn(1,2)).should_be(memos[[1,2]]);
+		value_of(fn(1,2)).should_be(memos[0].returnValue);
 		value_of(fn(1)).should_be(true);
-		value_of(fn(2)).should_be(memos[2]);
-		value_of(fn(3)).should_be(memos[3]);
+		value_of(fn(2)).should_be(memos[1].returnValue);
+		value_of(fn(3)).should_be(memos[2].returnValue);
 		value_of(fn(4)).should_be(true);
 	}
 });
@@ -676,7 +687,7 @@ describe('Function::overload',{
 		value_of(overloaded(0,0,0,0)).should_be_undefined();
 	},
 	'using object indexed by different arity': function(){
-		var overloaded = fn2.overload({0:fn2,0:fn1,1:fn3,2:fn1,4:fn0});
+		var overloaded = fn2.overload({0:fn1,1:fn3,2:fn1,4:fn0});
 		value_of(overloaded()).should_be(1);
 		value_of(overloaded(0)).should_be(3);
 		value_of(overloaded(0,0)).should_be(2);

@@ -37,6 +37,7 @@ this._ = Function._ = function(_){
 	});
 })();
 
+
 // class methods
 Function.extend({
 
@@ -112,7 +113,7 @@ Function.extend({
 		}
 		return function(){
 			var fn = funcTable[arguments.length];
-			if(!fn || typeof fn !== 'function') return undefined;
+			if(!fn || !instanceOf(fn,Function)) return;
 			return fn.apply(this,arguments);
 		};
 	}
@@ -150,38 +151,6 @@ Function.extend({
 // instance methods
 Function.implement({
 
-	toFunction: function toFunction(){ return this; },
-
-	traced: function traced(name, opts){
-		opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
-		var console = window.console,
-			log      = (console && console.log)      ? console.log.bind(console)      : Function.empty,
-			error    = (console && console.error)    ? console.error.bind(console)    : Function.empty,
-			group    = (console && console.group)    ? console.group.bind(console)    : log,
-			groupEnd = (console && console.groupEnd) ? console.groupEnd.bind(console) : Function.empty,
-			time     = (console && console.time)     ? console.time.bind(console)     : Function.empty,
-			timeEnd  = (console && console.timeEnd)  ? console.timeEnd.bind(console)  : Function.empty,
-			trace    = (console && console.trace)    ? console.trace.bind(console)    : Function.empty;
-		return this.wrap(function(fn,args){
-			name = name || fn.getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1];
-			name = Object.prototype.toString.call(name);
-			group('Called '+(name ? '"'+name.replace('"','\\"')+'"' : 'anonymous function')+' (',fn,')');
-			var ret, exception, success = true;
-			if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
-			if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
-			if(opts & Function.TRACE_TIME) time(fn);
-			group('Console Output');
-			try { ret = fn.apply(this,args); } catch(e) { success = false; exception = e; }
-			groupEnd();
-			if(opts & Function.TRACE_TIME) timeEnd(fn);
-			if(opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error(exception);
-			if(opts & Function.TRACE_STACK) trace();
-			groupEnd();
-			if(!success) throw exception;
-			return ret;
-		});
-	},
-
 	wrap: function wrap(fn,bind){
 		var that = this;
 		function wrapper(){
@@ -198,17 +167,76 @@ Function.implement({
 		return origin;
 	},
 
-	memoize: function memoize(memos){
-		memos = memos || {};
-		return this.wrap(function(original,args){
-			var context = (typeof this)==="function" ? this.getOrigin() : this;
-			var key = [context,args];
-			if(memos[key] !== undefined) return memos[key];
-			if(memos[args] !== undefined) return memos[args];
-			if(args.length===1 && memos[args[0]] !== undefined) return memos[args[0]];
-			return (memos[key] = original.apply(this,args));
+	memoize: function memoize(userMemos){
+		var keys = [], memos = {};
+		keys.indexOf = function(key){
+			for(var i=0, l=this.length; i<l; i++){
+				var o = this[i], args = key.args, context = key.context;
+				if( (o.context===undefined || o.context === context) &&
+					o.args.length === args.length &&
+					Array.prototype.every.call(o.args,function(arg,k){
+						return arg === args[k];
+					})
+				)
+					return i;
+			};
+			return -1;
+		};
+		Array.prototype.each.call(userMemos,function(memo){
+			memos[
+				keys.push({
+					context: memo.context,
+					args: Array.from(memo.args)
+				}) - 1
+			] = memo.returnValue;
 		});
-	},
+		return this.wrap(function(original,args){
+			var idx,
+				key = {
+					context: this,//instanceOf(this,Function) ? this.getOrigin() : this,
+					args: args
+				};
+			if((idx=keys.indexOf(key)) !== -1) return memos[idx];
+			return memos[keys.push(key) - 1] = original.apply(this,args);
+		});
+	}
+
+});
+
+Function.implement({
+
+	toFunction: function toFunction(){ return this; }.memoize(),
+
+	traced: function traced(name, opts){
+		opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
+		var console = window.console,
+			log      = (console && console.log)      ? console.log.bind(console)      : Function.empty,
+			error    = (console && console.error)    ? console.error.bind(console)    : Function.empty,
+			group    = (console && console.group)    ? console.group.bind(console)    : log,
+			groupEnd = (console && console.groupEnd) ? console.groupEnd.bind(console) : Function.empty,
+			time     = (console && console.time)     ? console.time.bind(console)     : Function.empty,
+			timeEnd  = (console && console.timeEnd)  ? console.timeEnd.bind(console)  : Function.empty,
+			trace    = (console && console.trace)    ? console.trace.bind(console)    : Function.empty;
+		return this.wrap(function(fn,args){
+			name = name || fn.getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1];
+			name = name.toString ? name.toString() : Object.prototype.toString.call(name);
+			group('Called '+(name ? '"'+name.replace('"','\\"')+'"' : 'anonymous function')+' (',fn,')');
+			var ret, exception, success = true;
+			if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
+			if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
+			if(opts & Function.TRACE_TIME) time(fn);
+			group('Console Output');
+			try { ret = fn.apply(this,args); } catch(e) { success = false; exception = e; }
+			groupEnd();
+			if(opts & Function.TRACE_TIME) timeEnd(fn);
+			if(opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error(exception);
+			if(opts & Function.TRACE_STACK) trace();
+			groupEnd();
+			if(!success) throw exception;
+			return ret;
+		});
+	}.memoize(),
+
 
 	partial: function partial(){
 		var partialArgs = Array.prototype.slice.call(arguments);
@@ -219,84 +247,77 @@ Function.implement({
 			});
 			return original.apply(this,collectedArgs.concat(passedArgs));
 		});
-	},
+	}.memoize(),
 
 	curry: function curry(){
 		var curriedArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			return original.apply(this,curriedArgs.concat(passedArgs));
 		});
-	},
+	}.memoize(),
 
 	rcurry: function rcurry(){
 		var curriedArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			return original.apply(this,passedArgs.concat(curriedArgs));
 		});
-	},
+	}.memoize(),
 
-	not: function not(){
+	not: (function (){
 		if(arguments.length) return this.not().apply(this,arguments);
 		return this.wrap(function(fn,args){
 			return !fn.apply(this,args);
 		});
-	},
+	}).memoize(),
 
 	prepend: function prepend(fn){
 		return this.wrap(function(self,args){
 			fn.apply(this,args);
 			return self.apply(this,args);
 		});
-	},
+	}.memoize(),
 
 	append: function append(fn){
 		return this.wrap(function(self,args){
 			self.apply(this,args);
 			return fn.apply(this,args);
 		});
-	},
+	}.memoize(),
 
 	overload: function overload(funcTable){
-		if(!funcTable || typeof funcTable === 'function') {
+		if(!funcTable || instanceOf(funcTable,Function)) {
 			var others = Array.prototype.slice.call(arguments);
 			return Function.overload.apply(null,others.concat(this));
 		} else {
 			funcTable[this.getArity()] = this;
 			return Function.overload(funcTable);
 		}
-	},
+	}.memoize(),
 
 	saturate: function saturate(){
 		var args = arguments;
 		return this.wrap(function(fn){
 			return fn.apply(this,args);
 		});
-	},
+	}.memoize(),
 
 	aritize: function aritize(length){
 		return this.wrap(function(fn,args){
 			return fn.apply(this,args.slice(0,length));
 		});
-	},
+	}.memoize(),
 
 	getArgs: function getArgs(){
 		var fn = this.getOrigin();
 		var args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/);
 		return args.filter(function(_){ return _ !== ""; });
-	},
+	}.memoize(),
 
 	getArity: function getArity(){
 		return this.arity || this.length || this.getArgs().length;
-	}
+	}.memoize()
 
 });
-
-// cache arglists
-(function(){
-	var original = Function.prototype.getArgs;
-	Function.prototype.getArgs = (function getArgs(){ return original.apply(this,arguments); }).memoize();
-})();
-
 
 // implement array methods
 ['forEach','each','every','some','filter','map','reduce','reduceRight','sort'].each(function(fnStr){
