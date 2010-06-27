@@ -396,8 +396,8 @@ describe('Function::traced',{
 		value_of(traced.call(testValues).context).should_be(testValues);
 	},
 	'return values are preserved': function(){
-		value_of((function(){ return 22; }).traced()()).should_be(22);
-		value_of((function(){ return; }).traced()()).should_be_undefined();
+		value_of((function(){ return 22; }).traced(22,Function.TRACE_NONE)()).should_be(22);
+		value_of((function(){ return; }).traced('undefined')()).should_be_undefined();
 	},
 	'properly handles functions that cause exceptions': function(){
 		try { (function(){ throw new Error(); }).traced()(); } catch(e){ return; }

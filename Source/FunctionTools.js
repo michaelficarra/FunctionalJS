@@ -164,6 +164,7 @@ Function.implement({
 			trace    = (console && console.trace)    ? console.trace.bind(console)    : Function.empty;
 		return this.wrap(function(fn,args){
 			name = name || fn.getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1];
+			name = Object.prototype.toString.call(name);
 			group('Called '+(name ? '"'+name.replace('"','\\"')+'"' : 'anonymous function')+' (',fn,')');
 			var ret, exception, success = true;
 			if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
