@@ -400,7 +400,8 @@ describe('Function::traced',{
 		value_of((function(){ return; }).traced()()).should_be_undefined();
 	},
 	'properly handles functions that cause exceptions': function(){
-		(function(){ throw new Error(); }).traced()();
+		try { (function(){ throw new Error(); }).traced()(); } catch(e){ return; }
+		value_of(this).should_fail();
 	},
 	'properly handles functions with console output': function(){
 		(function(){

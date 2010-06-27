@@ -95,15 +95,15 @@ Function.extend({
 		var args = Array.prototype.slice.call(arguments);
 		return function composed(){
 			var lastReturn = Array.prototype.slice.call(arguments);
-			args.reverse().each(function(fn){
-				lastReturn = [fn.apply(this,lastReturn)];
+			args.reverse().each(function(fn,i){
+				lastReturn = fn[i==0 ? 'apply' : 'call'](this,lastReturn);
 			},this);
-			return lastReturn[0];
+			return lastReturn;
 		};
 	},
 
 	overload: function overload(funcTable){
-		if(!funcTable || typeof funcTable === 'function'){
+		if(!funcTable || instanceOf(funcTable,Function)){
 			var newTable = {};
 			for(var i=0, l=arguments.length; i<l; i++){
 				newTable[arguments[i].getArity()] = arguments[i];
@@ -176,6 +176,7 @@ Function.implement({
 			if(opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error(exception);
 			if(opts & Function.TRACE_STACK) trace();
 			groupEnd();
+			if(!success) throw exception;
 			return ret;
 		});
 	},
