@@ -453,6 +453,12 @@ describe('Function::wrap',{
 			value_of(original.apply(expected,args)).should_be(expected);
 		},expected)()
 	}
+	'falsey values may be bound to wrapped functions': function(){
+		var expected = "";
+		(function(){ return this; }).wrap(function(original,args){
+			value_of(original.apply(expected,args)).should_be(expected);
+		},expected)()
+	}
 });
 
 describe('Function::getOrigin',{

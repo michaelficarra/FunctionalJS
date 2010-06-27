@@ -184,9 +184,9 @@ Function.implement({
 
 	wrap: function wrap(fn,bind){
 		var that = this;
-		var wrapper = function wrapper(){
+		function wrapper(){
 			var args = Array.prototype.slice.call(arguments);
-			return fn.call(this,(bind ? that.bind(bind) : that),args);
+			return fn.call(this,(bind===undefined ? that : that.bind(bind)),args);
 		};
 		wrapper._origin = this;
 		return wrapper;
