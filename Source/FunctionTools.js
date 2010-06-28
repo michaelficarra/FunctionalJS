@@ -131,7 +131,7 @@ Function.extend({
 		or  = function(a,b){ return !!(a || b); };
 	new Hash({'xor':xor,'and':and,'or':or}).each(function(fn,fnName){
 		Function[fnName] = function(){
-			var functions = Array.prototype.slice.apply(arguments);
+			var functions = Array.prototype.slice.call(arguments);
 			return function(){
 				switch(functions.length) {
 					case 0: return undefined;
@@ -174,7 +174,7 @@ Function.implement({
 				var o = this[i], args = key.args, context = key.context;
 				if( (o.context===undefined || o.context === context) &&
 					o.args.length === args.length &&
-					Array.prototype.every.call(o.args,function(arg,k){
+					Array.every(o.args,function(arg,k){
 						return arg === args[k];
 					})
 				)
@@ -182,7 +182,7 @@ Function.implement({
 			};
 			return -1;
 		};
-		Array.prototype.each.call(userMemos,function(memo){
+		Array.each(userMemos,function(memo){
 			memos[
 				keys.push({
 					context: memo.context,
@@ -209,7 +209,7 @@ Function.implement({
 
 	traced: function traced(name, opts){
 		opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
-		var console = window.console,
+		var console  = window.console,
 			log      = (console && console.log)      ? console.log.bind(console)      : Function.empty,
 			error    = (console && console.error)    ? console.error.bind(console)    : Function.empty,
 			group    = (console && console.group)    ? console.group.bind(console)    : log,
@@ -220,7 +220,7 @@ Function.implement({
 		return this.wrap(function(fn,args){
 			name = name || fn.getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1];
 			name = name.toString ? name.toString() : Object.prototype.toString.call(name);
-			group('Called '+(name ? '"'+name.replace('"','\\"')+'"' : 'anonymous function')+' (',fn,')');
+			group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
 			var ret, exception, success = true;
 			if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
 			if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
@@ -318,6 +318,7 @@ Function.implement({
 	}.memoize()
 
 });
+
 
 // implement array methods
 ['forEach','each','every','some','filter','map','reduce','reduceRight','sort'].each(function(fnStr){
