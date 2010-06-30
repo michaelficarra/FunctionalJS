@@ -481,28 +481,28 @@ describe('Function::memoize',{
 		powerOfTwo = function(n){ return n>0 && !(n&(n-1)); };
 		memoizeMe = function(n){ shared=true; if(n) return powerOfTwo(n); return false; }
 	},
-	'memoizes functions': function(){
+	'return values are cached': function(){
+		var fn = function(){ shared = true; }.memoize();
+		shared = false;
+		value_of(shared).should_be_false();
+		fn(1,"str",/regex/);
+		value_of(shared).should_be_true();
+		shared = false;
+		fn(1,"str",/regex/);
+		value_of(shared).should_be_false();
+		shared = false;
+		fn(1);
+		value_of(shared).should_be_true();
+	},
+	'different objects that are functionally equal are different values': function(){
 		var fn = Function.identity.memoize(),
 			a, b, c, d, e;
 		value_of(fn(a={a:1})===a).should_be_true();
 		value_of(fn({a:1})!==a).should_be_true();
 		value_of(fn(b=[c=function(){},d={b:2}])===b).should_be_true();
-		value_of(fn(e=[c,d])!==b).should_be_true();
+		value_of(fn(e=[c,d])===b).should_be_true();
 		value_of(fn(e)[0]===c).should_be_true();
 		value_of(fn(e)[1]===d).should_be_true();
-	},
-	'return values are cached': function(){
-		var fn = function(){ shared = true; }.memoize();
-		shared = false;
-		value_of(shared).should_be_false();
-		fn(1,2);
-		value_of(shared).should_be_true();
-		shared = false;
-		fn(1,2);
-		value_of(shared).should_be_false();
-		shared = false;
-		fn(1,2,3);
-		value_of(shared).should_be_true();
 	},
 	'memoized function with no arguments should still be cached': function(){
 		var fn = memoizeMe.memoize();

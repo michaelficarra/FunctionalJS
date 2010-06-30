@@ -169,14 +169,28 @@ Function.implement({
 
 	memoize: function memoize(userMemos){
 		var keys = [], memos = {};
+		var equalityCheck = function(a,b){
+			var type=typeOf(a);
+			if(type !== typeOf(b)) return false;
+			switch(type){
+				case 'object':
+					return a === b;
+				case 'regexp':
+					return a.toString() === b.toString();
+				case 'array':
+					return a.length === b.length &&
+						Array.every(a,function(ai,i){
+							return equalityCheck(ai,b[i]);
+						});
+				default:
+					return a == b;
+			}
+		};
 		keys.indexOf = function(key){
 			for(var i=0, l=this.length; i<l; i++){
-				var o = this[i], args = key.args, context = key.context;
-				if( (o.context===undefined || o.context === context) &&
-					o.args.length === args.length &&
-					Array.every(o.args,function(arg,k){
-						return arg === args[k];
-					})
+				if(
+					(this[i].context === undefined || this[i].context === key.context)
+					&& equalityCheck(this[i].args,key.args)
 				)
 					return i;
 			};
@@ -196,7 +210,7 @@ Function.implement({
 					context: this,//instanceOf(this,Function) ? this.getOrigin() : this,
 					args: args
 				};
-			if((idx=keys.indexOf(key)) !== -1) return memos[idx];
+			if((idx=keys.indexOf(key)) > -1) return memos[idx];
 			return memos[keys.push(key) - 1] = original.apply(this,args);
 		});
 	}
