@@ -40,6 +40,7 @@ describe('Function constants', {
 	'trace constants exist': function(){
 		var constants =
 			['TRACE_ALL'
+			,'TRACE_NONE'
 			,'TRACE_ARGUMENTS'
 			,'TRACE_CONTEXT'
 			,'TRACE_RETURN'
