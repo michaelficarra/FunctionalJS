@@ -178,12 +178,18 @@ Function.implement({
 				case 'regexp':
 					return a.toString() === b.toString();
 				case 'array':
+				case 'collection':
+				case 'arguments':
 					return a.length === b.length &&
 						Array.every(a,function(ai,i){
 							return equalityCheck(ai,b[i]);
 						});
 				default:
-					return a == b;
+					try {
+						return a.valueOf() === b.valueOf();
+					} catch (e) {
+						return a === b;
+					}
 			}
 		};
 		keys.indexOf = function(key){
