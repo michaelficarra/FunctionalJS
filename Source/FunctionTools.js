@@ -13,7 +13,7 @@ provides: [
 ... */
 
 
-// class globals, properties, constants
+// globals, class properties, constants
 Function._ = function(_){
 	var caller = arguments.callee.caller || arguments.caller;
 	if(!caller) return;
@@ -170,7 +170,7 @@ Function.implement({
 
 	memoize: function memoize(userMemos){
 		var keys = [], memos = {};
-		var equalityCheck = function(a,b){
+		function equalityCheck(a,b){
 			var type=typeOf(a);
 			if(type !== typeOf(b)) return false;
 			switch(type){
@@ -186,10 +186,12 @@ Function.implement({
 							return equalityCheck(ai,b[i]);
 						});
 				default:
-					try {
-						return a.valueOf() === b.valueOf();
-					} catch (e) {
-						return a === b;
+					if (a === b) {
+						// 0 is not -0
+						return a !== 0 || 1/a === 1/b;
+					} else {
+						// NaN is NaN
+						return a !== a && b !== b;
 					}
 			}
 		};
@@ -258,7 +260,6 @@ Function.implement({
 		});
 	}.memoize(),
 
-
 	partial: function partial(){
 		var partialArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
@@ -284,24 +285,32 @@ Function.implement({
 		});
 	}.memoize(),
 
-	not: (function (){
+	not: function not(){
 		if(arguments.length) return this.not().apply(this,arguments);
 		return this.wrap(function(fn,args){
 			return !fn.apply(this,args);
 		});
-	}).memoize(),
+	}.memoize(),
 
-	prepend: function prepend(fn){
+	prepend: function prepend(){
+		var functions = arguments;
 		return this.wrap(function(self,args){
-			fn.apply(this,args);
+			Array.each(functions,function(fn){
+				fn.apply(this,args);
+			},this);
 			return self.apply(this,args);
 		});
 	}.memoize(),
 
-	append: function append(fn){
+	append: function append(){
+		var functions = arguments;
 		return this.wrap(function(self,args){
 			self.apply(this,args);
-			return fn.apply(this,args);
+			var ret;
+			Array.each(functions,function(fn){
+				ret = fn.apply(this,args);
+			},this);
+			return ret;
 		});
 	}.memoize(),
 

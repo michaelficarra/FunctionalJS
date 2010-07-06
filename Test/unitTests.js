@@ -533,6 +533,22 @@ describe('Function::memoize',{
 		var fn = memoizeMe.memoize(memos);
 		value_of(fn(2)).should_be(memos.returnValue);
 		value_of(memoizeMe(2)).should_not_be(memos.returnValue);
+	},
+	'functions can memoize NaN as input': function(){
+		var n = 0,
+			fn = function(){ return n++; }.memoize();
+		value_of(fn(NaN)).should_be(fn(NaN));
+
+		var memos = {args: NaN, returnValue: false},
+			fn2 = function(){ return true; }.memoize(memos);
+		value_of(fn2(NaN)).should_be(memos.returnValue);
+	},
+	'memoized function treat 0 differently than -0': function(){
+		var n = 0,
+			fn = function(){ return n++; }.memoize();
+		value_of(fn(0)).should_not_be(fn(-0));
+		value_of(fn(0)).should_be(fn(0));
+		value_of(fn(-0)).should_be(fn(-0));
 	}
 });
 
