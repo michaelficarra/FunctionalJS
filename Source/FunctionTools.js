@@ -14,13 +14,14 @@ provides: [
 
 
 // class globals, properties, constants
-this._ = Function._ = function(_){
+Function._ = function(_){
 	var caller = arguments.callee.caller || arguments.caller;
 	if(!caller) return;
 	var args = caller.arguments;
 	if(_===undefined) args._ = (args._===undefined ? 0 : args._+1);
 	return args[_===undefined ? args._ : _];
 };
+if(this._ === undefined) this._ = Function._;
 
 (function(){
 	var n=0,
@@ -152,10 +153,10 @@ Function.extend({
 Function.implement({
 
 	wrap: function wrap(fn,bind){
-		var that = this;
+		var self = this;
 		function wrapper(){
 			var args = Array.prototype.slice.call(arguments);
-			return fn.call(this,(bind===undefined ? that : that.bind(bind)),args);
+			return fn.call(this,(bind===undefined ? self : self.bind(bind)),args);
 		};
 		wrapper._origin = this;
 		return wrapper;
@@ -195,14 +196,14 @@ Function.implement({
 		keys.indexOf = function(key){
 			for(var i=0, l=this.length; i<l; i++){
 				if(
-					(this[i].context === undefined || this[i].context === key.context)
-					&& equalityCheck(this[i].args,key.args)
+					(this[i].context === undefined || equalityCheck(this[i].context,key.context))
+					&& (this[i].args === undefined || equalityCheck(this[i].args,   key.args   ))
 				)
 					return i;
 			};
 			return -1;
 		};
-		Array.each(userMemos,function(memo){
+		Array.from(userMemos).each(function(memo){
 			memos[
 				keys.push({
 					context: memo.context,
@@ -213,7 +214,7 @@ Function.implement({
 		return this.wrap(function(original,args){
 			var idx,
 				key = {
-					context: this,//instanceOf(this,Function) ? this.getOrigin() : this,
+					context: this,
 					args: args
 				};
 			if((idx=keys.indexOf(key)) > -1) return memos[idx];

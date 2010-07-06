@@ -527,6 +527,12 @@ describe('Function::memoize',{
 		value_of(fn(2)).should_be(memos[1].returnValue);
 		value_of(fn(3)).should_be(memos[2].returnValue);
 		value_of(fn(4)).should_be(true);
+	},
+	'can specify just a single memo': function(){
+		var memos = {args: 2, returnValue: false};
+		var fn = memoizeMe.memoize(memos);
+		value_of(fn(2)).should_be(memos.returnValue);
+		value_of(memoizeMe(2)).should_not_be(memos.returnValue);
 	}
 });
 
