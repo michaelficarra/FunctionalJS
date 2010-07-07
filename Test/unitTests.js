@@ -639,6 +639,16 @@ describe('Function::prepend',{
 		value_of(shared).should_be_false();
 		fn.prepend(setSharedContext).call(true);
 		value_of(shared).should_be_false();
+	},
+	'return value is return value of original context': function(){
+		var sharedArr = [],
+			fn  = function(){ sharedArr.push(0); return 0; },
+			fnA = function(){ sharedArr.push(1); return 1; },
+			fnB = function(){ sharedArr.push(2); return 2; },
+			fnC = function(){ sharedArr.push(3); return 3; },
+			composite = fn.prepend(fnA,fnB,fnC);
+		value_of(composite()).should_be(0);
+		value_of(sharedArr).should_be([1,2,3,0]);
 	}
 });
 
@@ -674,6 +684,16 @@ describe('Function::append',{
 		value_of(shared).should_be_false();
 		fn.append(setSharedContext).call(true);
 		value_of(shared).should_be_true();
+	},
+	'return value is return value of original context': function(){
+		var sharedArr = [],
+			fn  = function(){ sharedArr.push(0); return 0; },
+			fnA = function(){ sharedArr.push(1); return 1; },
+			fnB = function(){ sharedArr.push(2); return 2; },
+			fnC = function(){ sharedArr.push(3); return 3; },
+			composite = fn.append(fnA,fnB,fnC);
+		value_of(composite()).should_be(0);
+		value_of(sharedArr).should_be([0,1,2,3]);
 	}
 });
 

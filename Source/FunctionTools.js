@@ -186,6 +186,7 @@ Function.implement({
 							return equalityCheck(ai,b[i]);
 						});
 				default:
+					// taken from google caja
 					if (a === b) {
 						// 0 is not -0
 						return a !== 0 || 1/a === 1/b;
@@ -205,6 +206,7 @@ Function.implement({
 			};
 			return -1;
 		};
+		// initialize memo collection
 		Array.from(userMemos).each(function(memo){
 			memos[
 				keys.push({
@@ -305,10 +307,9 @@ Function.implement({
 	append: function append(){
 		var functions = arguments;
 		return this.wrap(function(self,args){
-			self.apply(this,args);
-			var ret;
+			var ret = self.apply(this,args);
 			Array.each(functions,function(fn){
-				ret = fn.apply(this,args);
+				fn.apply(this,args);
 			},this);
 			return ret;
 		});
