@@ -332,9 +332,9 @@ Function.implement({
 		});
 	}.memoize(),
 
-	aritize: function aritize(length){
+	aritize: function aritize(arity){
 		return this.wrap(function(fn,args){
-			return fn.apply(this,args.slice(0,length));
+			return fn.apply(this,args.slice(0,arity));
 		});
 	}.memoize(),
 

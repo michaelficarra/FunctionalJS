@@ -321,6 +321,27 @@ case, the return value of `Function.overload` is returned.
 	fnA.overload({1:fnB,2:fnC})(0)		// "B"
 	fnC.overload(fnA,fnB)()				// "C"
 
+### saturate(\[arg\[, arg\]\*\]) => function()
+Returns a function that fixes the arguments passed to `saturate` to the
+function upon which it is called. Arguments given to the returned function will
+be ignored in favor of the originally passed arguments.
+
+	Function.identity.saturate(1,2)()		// [1,2]
+	Function.identity.saturate(1,2)(3,4)	// [1,2]
+	Function.identity.saturate()()			// undefined
+	Function.identity.saturate()(1,2)		// undefined
+	Function.identity.saturate(1)()			// 1
+	Function.identity.saturate(2)(1,2)		// 2
+
+### aritize(arity) => function
+If given a non-negative <arity>, a function that only accepts the first <arity>
+arguments is returned. If <arity> is less than zero, a function that accepts
+all but the last <arity> arguments is returned.
+
+	Function.identity.aritize(2)(0,1,2)		// [0,1]
+	Function.identity.aritize(0)(0,1)		// undefined
+	Function.identity.aritize(-2)(0,1,2)	// 0
+
 ### getArgs
 Returns an array containing the arguments expected by the function upon which
 `getArgs` is called.
@@ -396,8 +417,6 @@ TODO
 * example code for Function::memoize
 * document Function::traced
 * document Function::getOrigin
-* document Function::saturate
-* document Function::aritize
 * document Function.and, Function.or, Function.xor
 * update all method signatures in documentation to include return values
 * update YAML header and package.yml to reflect final API
