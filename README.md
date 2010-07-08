@@ -109,15 +109,12 @@ sequentially. The return value of the last function is returned by the
 generated function. Arguments given to the generated function are passed to all
 functions.
 
-	var fnA = function(){ console.log('A'); },
-		fnB = function(){ console.log('B'); },
-		fnC = function(_){ console.log(_+23); }
-	Function.concat(fnA,fnB,fnC)(100)				// undefined
-
-	// Console Output:
-	//  A
-	//  B
-	//  123
+	var sharedArr = [],
+		fnA = function(){ sharedArr.push('A'); return 0; },
+		fnB = function(){ sharedArr.push('B'); return 1; },
+		fnC = function(_){ sharedArr.push(_+23); return 2; }
+	Function.concat(fnA,fnB,fnC)(100)		// 2
+	sharedArr								// ['A','B',123]
 
 ### Function.compose (\[fn\]\*) => function(\[arg\]\*) => mixed
 Creates a function that runs all functions passed in reverse order, passing the
