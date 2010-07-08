@@ -155,7 +155,10 @@ passed to the returned function.
 Instance Methods
 ----------------
 
-### wrap (fn\[, bind\]) => function(\[arg\]\*) => mixed
+### toFunction => this
+Returns the function upon which `toFunction` is called.
+
+### wrap (fn\[, bind\]) => function(\[arg\[, arg\]\*\]) => mixed
 Returns a function that calls the given function, passing to it this function
 instance as the first argument and the arguments given to the generated
 function as the second argument.
@@ -211,7 +214,7 @@ containing zero or more values.
 	TODO: example code
 
 
-### partial(\[arg\]\*)
+### partial(\[arg\[, arg\]\*\])
 *Note: Function._ is defined as _ in the global scope*
 
 Creates a partially applied function that has any passed arguments that are not
@@ -222,16 +225,26 @@ function accepts any unbound arguments.
 	var part = fn.partial(1,undefined,_,4)		// <#Function:part>
 	part(2,3,5)									// [1,2,3,4,5]
 
-### curry(\[arg\]\*)
+### curry(\[arg\[, arg\]\*\])
 A simplified `Function::partial`. Creates a partially applied function that has
-its arguments bound to those passed to `curry` in the order in which they are
-given.
+the arguments given to `curry` bound to its leftmost arguments in the order in
+which they are given.
 
 	var fn = function(){ return [].slice.call(arguments); }
 	var some = fn.curry(1,2)		// <#Function:some>
 	some()							// [1,2]
 	var most = some.curry(3)		// <#Function:most>
 	var all = most(4,5)				// [1,2,3,4,5]
+
+### rcurry(\[arg\[, arg\]\*\])
+Creates a partially applied function that has the arguments given to `rcurry`
+bound to its rightmost arguments in the order in which they are given.
+
+	var fn = function(){ return [].slice.call(arguments); }
+	var some = fn.rcurry(4,5)		// <#Function:some>
+	some()							// [4,5]
+	var most = some.rcurry(3)		// <#Function:most>
+	var all = most(1,2)				// [1,2,3,4,5]
 
 ### not(\[arg\[, arg\]\*\])
 When called with no arguments, returns a function that returns the opposite
@@ -383,8 +396,6 @@ TODO
 * example code for Function::memoize
 * document Function::traced
 * document Function::getOrigin
-* document Function::toFunction
-* document Function::rcurry
 * document Function::saturate
 * document Function::aritize
 * document Function.and, Function.or, Function.xor
