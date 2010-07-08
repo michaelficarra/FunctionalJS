@@ -21,39 +21,39 @@ Class Methods
 Returns `undefined` for any given value. Useful when overriding another
 function and desiring no action.
 
-	Function.empty()			// undefined
-	Function.empty("")			// undefined
-	Function.empty(2)			// undefined
-	Function.empty(null)		// undefined
-	Function.empty(true)		// undefined
+	Function.empty()        // undefined
+	Function.empty("")      // undefined
+	Function.empty(2)       // undefined
+	Function.empty(null)    // undefined
+	Function.empty(true)    // undefined
 
 ### Function.identity (value) => value
 Returns whatever value is given. When many values are given, returns an array
 containing those values. Useful when a function is expected and one would like
 to pass a constant value.
 
-	Function.identity(0)					// 0
-	Function.identity("str")				// "str"
-	Function.identity(undefined)			// undefined
-	Function.identity(null)					// null
-	Function.identity(function a(){})		// <#Function:a>
-	Function.identity()						// undefined
-	Function.identity(0,1,2)				// [0,1,2]
-	Function.identity(0,undefined)			// [0,undefined]
+	Function.identity(0)                 // 0
+	Function.identity("str")             // "str"
+	Function.identity(undefined)         // undefined
+	Function.identity(null)              // null
+	Function.identity(function a(){})    // <#Function:a>
+	Function.identity()                  // undefined
+	Function.identity(0,1,2)             // [0,1,2]
+	Function.identity(0,undefined)       // [0,undefined]
 
 ### Function.context () => mixed
 A function that returns its context (the `this` value).
 
-	Function.context()				// global scope object, likely window
-	Function.context.call(1,2)		// 1
+	Function.context()            // global scope object, likely window
+	Function.context.call(1,2)    // 1
 
 ### Function.lambda (value) => function() => value
 Returns a function that returns the value passed to `Function.lambda`.
 
-	var fn = Function.lambda("lambda")	// <#Function:fn>
-	fn()		// "lambda"
-	fn(false)	// "lambda"
-	fn(18)		// "lambda"
+	var fn = Function.lambda("lambda")    // <#Function:fn>
+	fn()         // "lambda"
+	fn(false)    // "lambda"
+	fn(18)       // "lambda"
 
 ### Function.pluck (property) => function(obj) => obj[property]
 Returns a function that returns the property of the passed object referenced by
@@ -61,12 +61,12 @@ the argument passed to `Function.pluck`.
 
 	var arr = [[0],[1,2,3],[2,3]],
 		len = Function.pluck('length')
-	arr.map(Function.pluck(0))			// [0,1,2]
-	arr.map(Function.pluck(1))			// [undefined,2,3]
-	arr.map(len)						// [1,3,2]
-	len(arr)							// 3
-	len("string")						// 6
-	len({test:"abc",length:"def"})		// "def"
+	arr.map(Function.pluck(0))        // [0,1,2]
+	arr.map(Function.pluck(1))        // [undefined,2,3]
+	arr.map(len)                      // [1,3,2]
+	len(arr)                          // 3
+	len("string")                     // 6
+	len({test:"abc",length:"def"})    // "def"
 
 ### Function.invoke (method\[, defaultArg\]*) => function(obj) => mixed
 Returns a function that calls the method referenced by the first argument
@@ -80,10 +80,10 @@ instead of passing the default arguments.
 		first = Function.invoke(0,'a'),
 		obj   = {now:Function.identity},
 		arr   = [Function.identity];
-	now(Date)			// <the current date>
-	now(obj,0,1,2)		// [0,1,2]
-	first(arr)			// 'a'
-	first(arr,'b')		// 'b'
+	now(Date)         // <the current date>
+	now(obj,0,1,2)    // [0,1,2]
+	first(arr)        // 'a'
+	first(arr,'b')    // 'b'
 
 ### Function.sequence (\[fn\]\*) => function(\[arg\]*) => mixed
 Creates a function that calls the first passed function on the first call, the
@@ -97,11 +97,11 @@ arguments, Function.sequence returns Function.empty.
 		fn2 = function(){ return 2; },
 		fn3 = function(){ return 3; },
 		seq = Function.sequence(fn1,fn2,fn3);
-	seq();		// 1
-	seq();		// 2
-	seq();		// 3
-	seq();		// 1
-	seq();		// 2
+	seq()    // 1
+	seq()    // 2
+	seq()    // 3
+	seq()    // 1
+	seq()    // 2
 
 ### Function.concat / Function.concatenate (\[fn\]\*) => function(\[arg\]\*) => mixed
 Creates a function that runs all functions passed to `Function.concat`
@@ -113,8 +113,8 @@ functions.
 		fnA = function(){ sharedArr.push('A'); return 0; },
 		fnB = function(){ sharedArr.push('B'); return 1; },
 		fnC = function(_){ sharedArr.push(_+23); return 2; }
-	Function.concat(fnA,fnB,fnC)(100)		// 2
-	sharedArr								// ['A','B',123]
+	Function.concat(fnA,fnB,fnC)(100)    // 2
+	sharedArr                            // ['A','B',123]
 
 ### Function.compose (\[fn\]\*) => function(\[arg\]\*) => mixed
 Creates a function that runs all functions passed in reverse order, passing the
@@ -126,7 +126,7 @@ called.
 		b = function(str){ return 'b'+str; },
 		c = function(str1,str2){ return 'c'+str1+str2+'f'; },
 		fn = Function.compose(a,b,c)
-	fn('d','e')		// "abcde"
+	fn('d','e')    // "abcde"
 
 ### Function.overload (\[fn\]\*) => function(\[arg\]\*) => mixed
 If an object having numeric keys is given as the sole argument, returns a
@@ -139,17 +139,17 @@ passed to the returned function.
 		fnB = function(x){ return 'B'; },
 		fnC = function(y,y){ return 'C'; },
 		fnD = funciton(z,z,z){ return 'D'; }
-	var overloaded = Function.overload(fnA,fnB,fnC,fnD)	// <#Function:overload>
-	overload()			// 'A'
-	overload(0,0)		// 'C'
-	overload(0,0,0,0)	// undefined
+	var overloaded = Function.overload(fnA,fnB,fnC,fnD)  // <#Function:overload>
+	overload()           // 'A'
+	overload(0,0)        // 'C'
+	overload(0,0,0,0)    // undefined
 
 	overloaded = Function.overload({
 		0:fnD, 1:fnC, 2:fnB, 8:fnA
 	})
-	overloaded(0)							// 'C'
-	overloaded(0,0,0)						// undefined
-	overloaded.apply({},new Array(8))		// 'A'
+	overloaded(0)                        // 'C'
+	overloaded(0,0,0)                    // undefined
+	overloaded.apply({},new Array(8))    // 'A'
 
 
 Instance Methods
@@ -222,8 +222,8 @@ Creates a partially applied function that has any passed arguments that are not
 function accepts any unbound arguments.
 
 	var fn = function(){ return [].slice.call(arguments); }
-	var part = fn.partial(1,undefined,_,4)		// <#Function:part>
-	part(2,3,5)									// [1,2,3,4,5]
+	var part = fn.partial(1,undefined,_,4)      // <#Function:part>
+	part(2,3,5)                                 // [1,2,3,4,5]
 
 ### curry(\[arg\[, arg\]\*\])
 A simplified `Function::partial`. Creates a partially applied function that has
@@ -231,20 +231,20 @@ the arguments given to `curry` bound to its leftmost arguments in the order in
 which they are given.
 
 	var fn = function(){ return [].slice.call(arguments); }
-	var some = fn.curry(1,2)		// <#Function:some>
-	some()							// [1,2]
-	var most = some.curry(3)		// <#Function:most>
-	var all = most(4,5)				// [1,2,3,4,5]
+	var some = fn.curry(1,2)        // <#Function:some>
+	some()                          // [1,2]
+	var most = some.curry(3)        // <#Function:most>
+	var all = most(4,5)             // [1,2,3,4,5]
 
 ### rcurry(\[arg\[, arg\]\*\])
 Creates a partially applied function that has the arguments given to `rcurry`
 bound to its rightmost arguments in the order in which they are given.
 
 	var fn = function(){ return [].slice.call(arguments); }
-	var some = fn.rcurry(4,5)		// <#Function:some>
-	some()							// [4,5]
-	var most = some.rcurry(3)		// <#Function:most>
-	var all = most(1,2)				// [1,2,3,4,5]
+	var some = fn.rcurry(4,5)       // <#Function:some>
+	some()                          // [4,5]
+	var most = some.rcurry(3)       // <#Function:most>
+	var all = most(1,2)             // [1,2,3,4,5]
 
 ### not(\[arg\[, arg\]\*\])
 When called with no arguments, returns a function that returns the opposite
@@ -254,11 +254,11 @@ of the return value of the function upon which `not` is called when passed
 those arguments is returned.
 
 	var powerOfTwo = function(n){ return n>0 && !(n&(n-1)); }
-	var notted = powerOfTwo.not()	// <#Function:notted>
-	powerOfTwo(2)			// true
-	notted(2)				// false
-	powerOfTwo(5)			// false
-	powerOfTwo.not(5)		// true
+	var notted = powerOfTwo.not()   // <#Function:notted>
+	powerOfTwo(2)        // true
+	notted(2)            // false
+	powerOfTwo(5)        // false
+	powerOfTwo.not(5)    // true
 
 ### append(fn\[, fn\]\*)
 Returns a new function that runs the given function(s) after running the
@@ -274,14 +274,14 @@ function is the return value of the function upon which `append` was called.
 	var fnAB = fnA.append(fnB),
 		fnBC = fnB.append(fnC),
 		fnABC = fnA.append(fnB,fnC);
-	fnA()				// 0
-	sharedArr			// [0]
-	fnAB()				// 0
-	sharedArr			// [0,0,1]
-	fnBC()				// 1
-	sharedArr			// [0,0,1,1,2]
-	fnABC()				// 0
-	sharedArr			// [0,0,1,1,2,0,1,2]
+	fnA()        // 0
+	sharedArr    // [0]
+	fnAB()       // 0
+	sharedArr    // [0,0,1]
+	fnBC()       // 1
+	sharedArr    // [0,0,1,1,2]
+	fnABC()      // 0
+	sharedArr    // [0,0,1,1,2,0,1,2]
 
 ### prepend(fn\[, fn\]\*)
 Returns a new function that runs the given function(s) before running the
@@ -297,14 +297,14 @@ function is the return value of the function upon which `prepend` was called.
 	var fnAB = fnB.prepend(fnA),
 		fnBC = fnC.prepend(fnB),
 		fnABC = fnC.prepend(fnA,fnB);
-	fnA(0)				// 0
-	sharedArr			// [0]
-	fnAB(1)				// 1
-	sharedArr			// [0,1,2]
-	fnBC(2)				// 2
-	sharedArr			// [0,1,2,3,4]
-	fnABC(3)			// 2
-	sharedArr			// [0,1,2,3,4,3,4,5]
+	fnA(0)       // 0
+	sharedArr    // [0]
+	fnAB(1)      // 1
+	sharedArr    // [0,1,2]
+	fnBC(2)      // 2
+	sharedArr    // [0,1,2,3,4]
+	fnABC(3)     // 2
+	sharedArr    // [0,1,2,3,4,3,4,5]
 
 ### overload(\[funcTable\])
 If a numerically indexed object containing functions is given as the only
@@ -317,46 +317,46 @@ case, the return value of `Function.overload` is returned.
 	var fnA = function(){ return "A"; },
 		fnB = function(b){ return "B"; },
 		fnC = function(){ return "C"; }
-	fnA.overload(fnB,fnC)()				// "A"
-	fnA.overload({1:fnB,2:fnC})(0)		// "B"
-	fnC.overload(fnA,fnB)()				// "C"
+	fnA.overload(fnB,fnC)()             // "A"
+	fnA.overload({1:fnB,2:fnC})(0)      // "B"
+	fnC.overload(fnA,fnB)()             // "C"
 
 ### saturate(\[arg\[, arg\]\*\]) => function()
 Returns a function that fixes the arguments passed to `saturate` to the
 function upon which it is called. Arguments given to the returned function will
 be ignored in favor of the originally passed arguments.
 
-	Function.identity.saturate(1,2)()		// [1,2]
-	Function.identity.saturate(1,2)(3,4)	// [1,2]
-	Function.identity.saturate()()			// undefined
-	Function.identity.saturate()(1,2)		// undefined
-	Function.identity.saturate(1)()			// 1
-	Function.identity.saturate(2)(1,2)		// 2
+	Function.identity.saturate(1,2)()         // [1,2]
+	Function.identity.saturate(1,2)(3,4)      // [1,2]
+	Function.identity.saturate()()            // undefined
+	Function.identity.saturate()(1,2)         // undefined
+	Function.identity.saturate(1)()           // 1
+	Function.identity.saturate(2)(1,2)        // 2
 
 ### aritize(arity) => function
 If given a non-negative <arity>, a function that only accepts the first <arity>
 arguments is returned. If <arity> is less than zero, a function that accepts
 all but the last <arity> arguments is returned.
 
-	Function.identity.aritize(2)(0,1,2)		// [0,1]
-	Function.identity.aritize(0)(0,1)		// undefined
-	Function.identity.aritize(-2)(0,1,2)	// 0
+	Function.identity.aritize(2)(0,1,2)       // [0,1]
+	Function.identity.aritize(0)(0,1)         // undefined
+	Function.identity.aritize(-2)(0,1,2)      // 0
 
 ### getArgs
 Returns an array containing the arguments expected by the function upon which
 `getArgs` is called.
 
-	function(one,two){}.getArgs()				// ["one","two"]
-	function(a,b,c){}.memoize().getArgs()		// ["a","b","c"]
-	function(){}.getArgs()						// []
+	function(one,two){}.getArgs()             // ["one","two"]
+	function(a,b,c){}.memoize().getArgs()     // ["a","b","c"]
+	function(){}.getArgs()                    // []
 
 ### getArity
 Returns the number of arguments expected by the function upon which `getArity`
 is called.
 
-	function(one,two){}.getArity()				// 2
-	function(a,b,c){}.memoize().getArity()		// 3
-	function(){}.getArity()						// 0
+	function(one,two){}.getArity()            // 2
+	function(a,b,c){}.memoize().getArity()    // 3
+	function(){}.getArity()                   // 0
 
 ### Array Methods
 The array methods `forEach`, `each`, `every`, `some`, `filter`, `map`,
@@ -367,31 +367,31 @@ associated method call on the array, passing the function upon which the method
 was called as the first argument and any other arguments supplied as successive
 arguments.
 
-	var fn = function (a,b){ return a+b; }		// <#Function:fn>
-	fn.reduce([1,2,3,4],0)						// 10
+	var fn = function (a,b){ return a+b; }    // <#Function:fn>
+	fn.reduce([1,2,3,4],0)                    // 10
 
 ### Array::toFunction
 Returns a function that returns the value of any property of the array upon
 which `toFunction` was called. Most useful for accessing the numeric properties
 of the array.
 
-	var arr = ['a','b','c']			// ['a','b','c']
-	var fn = arr.toFunction()		// <#Function:fn>
-	fn(0)							// 'a'
-	fn(2)							// 'c'
-	fn(3)							// undefined
-	fn('length')					// 3
+	var arr = ['a','b','c']         // ['a','b','c']
+	var fn = arr.toFunction()       // <#Function:fn>
+	fn(0)                           // 'a'
+	fn(2)                           // 'c'
+	fn(3)                           // undefined
+	fn('length')                    // 3
 
 ### Hash::toFunction
 Returns a function that returns the value of any property of the hash upon
 which `toFunction` was called.
 
-	var obj = new Hash({a:0,b:1,c:2})	// {a:0,b:1,c:2}
-	var fn = obj.toFunction()			// <#Function:fn>
-	fn('a')								// 0
-	fn('c')								// 2
-	fn('z')								// undefined
-	fn('hasOwnProperty')				// <#Function:hasOwnProperty>
+	var obj = new Hash({a:0,b:1,c:2})   // {a:0,b:1,c:2}
+	var fn = obj.toFunction()           // <#Function:fn>
+	fn('a')                             // 0
+	fn('c')                             // 2
+	fn('z')                             // undefined
+	fn('hasOwnProperty')                // <#Function:hasOwnProperty>
 
 
 Globals
@@ -408,7 +408,7 @@ undefined arguments rather than passing `undefined`.
 	var fn = function(a){
 		return [_(),_(3),_(),_(),_(0),_(),_()];
 	}
-	fn(1,2,3,4)		// [1,4,2,3,1,4,undefined]
+	fn(1,2,3,4)    // [1,4,2,3,1,4,undefined]
 
 
 TODO
