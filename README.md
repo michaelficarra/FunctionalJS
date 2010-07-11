@@ -189,7 +189,25 @@ Examples of usage taken from the source:
 		}
 	});
 
-### memoize(\[memos\])
+### getOrigin => function
+*Note: All Function instance methods defined in FunctionTools that return a function use `wrap` to create it; you should, too!*
+When called on functions passed through `wrap`, `getOrigin` returns the value
+returned when `getOrigin` is applied to the function on which `wrap` was
+originally called.  Otherwise, `getOrigin` acts like `Function.context` and
+returns the function upon which it is called. This essentially walks the chain
+of wrapped functions to find the original function with none of the
+modifications applied to it.
+
+	var fn = function(a,b){ return a+b; },
+		notted = fn.not(),
+		curried = notted.curry(2);
+
+	notted.getOrigin()            // <#Function:fn>
+	notted === fn                 // false
+	notted.getOrigin() === fn     // true
+	curried.getOrigin() === fn    // true
+
+### memoize (\[memos\]) => mixed
 *Note: Objects are compared using exact equality (`===`), arrays are considered equal if their contents are equal*
 
 Returns a memoized version of the function upon which memoize is called.  The
@@ -214,7 +232,7 @@ containing zero or more values.
 	TODO: example code
 
 
-### partial(\[arg\[, arg\]\*\])
+### partial (\[arg\[, arg\]\*\]) => function
 *Note: Function._ is defined as _ in the global scope*
 
 Creates a partially applied function that has any passed arguments that are not
@@ -225,7 +243,7 @@ function accepts any unbound arguments.
 	var part = fn.partial(1,undefined,_,4)      // <#Function:part>
 	part(2,3,5)                                 // [1,2,3,4,5]
 
-### curry(\[arg\[, arg\]\*\])
+### curry (\[arg\[, arg\]\*\]) => function
 A simplified `Function::partial`. Creates a partially applied function that has
 the arguments given to `curry` bound to its leftmost arguments in the order in
 which they are given.
@@ -236,7 +254,7 @@ which they are given.
 	var most = some.curry(3)        // <#Function:most>
 	var all = most(4,5)             // [1,2,3,4,5]
 
-### rcurry(\[arg\[, arg\]\*\])
+### rcurry (\[arg\[, arg\]\*\]) => function
 Creates a partially applied function that has the arguments given to `rcurry`
 bound to its rightmost arguments in the order in which they are given.
 
@@ -246,7 +264,7 @@ bound to its rightmost arguments in the order in which they are given.
 	var most = some.rcurry(3)       // <#Function:most>
 	var all = most(1,2)             // [1,2,3,4,5]
 
-### not(\[arg\[, arg\]\*\])
+### not (\[arg\[, arg\]\*\]) => function
 When called with no arguments, returns a function that returns the opposite
 Boolean representation of the return value of the function upon which `not` is
 called. When arguments are passed to `not`, the opposite Boolean representation
@@ -260,7 +278,7 @@ those arguments is returned.
 	powerOfTwo(5)        // false
 	powerOfTwo.not(5)    // true
 
-### append(fn\[, fn\]\*)
+### append (fn\[, fn\]\*) => function
 Returns a new function that runs the given function(s) after running the
 function upon which `append` was called. Any arguments passed to the generated
 function will be passed to all functions. The return value of the generated
@@ -283,7 +301,7 @@ function is the return value of the function upon which `append` was called.
 	fnABC()      // 0
 	sharedArr    // [0,0,1,1,2,0,1,2]
 
-### prepend(fn\[, fn\]\*)
+### prepend (fn\[, fn\]\*) => function
 Returns a new function that runs the given function(s) before running the
 function upon which `prepend` was called. Any arguments passed to the generated
 function will be passed to all functions. The return value of the generated
@@ -306,7 +324,7 @@ function is the return value of the function upon which `prepend` was called.
 	fnABC(3)     // 2
 	sharedArr    // [0,1,2,3,4,3,4,5]
 
-### overload(\[funcTable\])
+### overload (\[funcTable\]) => function
 If a numerically indexed object containing functions is given as the only
 argument, the function upon which `overload` is called is added to the object
 (indexed by its arity) and the object is passed to `Function.overload`. If a
@@ -321,7 +339,7 @@ case, the return value of `Function.overload` is returned.
 	fnA.overload({1:fnB,2:fnC})(0)      // "B"
 	fnC.overload(fnA,fnB)()             // "C"
 
-### saturate(\[arg\[, arg\]\*\]) => function()
+### saturate (\[arg\[, arg\]\*\]) => function
 Returns a function that fixes the arguments passed to `saturate` to the
 function upon which it is called. Arguments given to the returned function will
 be ignored in favor of the originally passed arguments.
@@ -333,7 +351,7 @@ be ignored in favor of the originally passed arguments.
 	Function.identity.saturate(1)()           // 1
 	Function.identity.saturate(2)(1,2)        // 2
 
-### aritize(arity) => function
+### aritize (arity) => function
 If given a non-negative <arity>, a function that only accepts the first <arity>
 arguments is returned. If <arity> is less than zero, a function that accepts
 all but the last <arity> arguments is returned.
@@ -342,7 +360,7 @@ all but the last <arity> arguments is returned.
 	Function.identity.aritize(0)(0,1)         // undefined
 	Function.identity.aritize(-2)(0,1,2)      // 0
 
-### getArgs
+### getArgs => array
 Returns an array containing the arguments expected by the function upon which
 `getArgs` is called.
 
@@ -350,7 +368,7 @@ Returns an array containing the arguments expected by the function upon which
 	function(a,b,c){}.memoize().getArgs()     // ["a","b","c"]
 	function(){}.getArgs()                    // []
 
-### getArity
+### getArity => integer
 Returns the number of arguments expected by the function upon which `getArity`
 is called.
 
@@ -370,7 +388,7 @@ arguments.
 	var fn = function (a,b){ return a+b; }    // <#Function:fn>
 	fn.reduce([1,2,3,4],0)                    // 10
 
-### Array::toFunction
+### Array::toFunction => function
 Returns a function that returns the value of any property of the array upon
 which `toFunction` was called. Most useful for accessing the numeric properties
 of the array.
@@ -382,7 +400,7 @@ of the array.
 	fn(3)                           // undefined
 	fn('length')                    // 3
 
-### Hash::toFunction
+### Hash::toFunction => function
 Returns a function that returns the value of any property of the hash upon
 which `toFunction` was called.
 
@@ -416,7 +434,6 @@ TODO
 
 * example code for Function::memoize
 * document Function::traced
-* document Function::getOrigin
 * document Function.and, Function.or, Function.xor
 * update all method signatures in documentation to include return values
 * update YAML header and package.yml to reflect final API
