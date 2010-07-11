@@ -139,6 +139,11 @@ Function.extend({
 					return function(){
 						return !!fn.apply(this,arguments);
 					};
+				case 2:
+					var functions = arguments;
+					return function(){
+						return op(functions[0].apply(this,arguments),functions[1].apply(this,arguments));
+					};
 				default:
 					var functions = Array.prototype.slice.call(arguments);
 					return function boolOp(){
@@ -149,7 +154,7 @@ Function.extend({
 								var first = functions[0].apply(this,args);
 								// short-circuit and and or
 								if(op===and && !first || op===or && first) return !!first;
-								return !!op(first,recurse.call(this,functions.slice(1),args));
+								return op(first,recurse.call(this,functions.slice(1),args));
 							}
 						}).call(this,functions,arguments);
 					}
