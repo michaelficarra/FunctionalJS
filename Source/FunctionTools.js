@@ -130,20 +130,30 @@ Function.extend({
 	var xor = function(a,b){ return !!(!!a ^ !!b); },
 		and = function(a,b){ return !!(a && b); },
 		or  = function(a,b){ return !!(a || b); };
-	new Hash({'xor':xor,'and':and,'or':or}).each(function(fn,fnName){
-		Function[fnName] = function(){
-			var functions = Array.prototype.slice.call(arguments);
-			return function(){
-				switch(functions.length) {
-					case 0: return undefined;
-					case 1: return !!functions[0].apply(this,arguments);
-					default:
-						var first = functions.shift().apply(this,arguments);
-						// short-circuit and and or
-						if(fn===and && !first || fn===or && first) return !!first;
-						return !!fn(first,arguments.callee.apply(this,functions));
-				}
-			};
+	new Hash({'xor':xor,'and':and,'or':or}).each(function(op,opName){
+		Function[opName] = function boolGen(){
+			switch(arguments.length){
+				case 0: return Function.lambda(undefined);
+				case 1:
+					var fn = arguments[0];
+					return function(){
+						return !!fn.apply(this,arguments);
+					};
+				default:
+					var functions = Array.prototype.slice.call(arguments);
+					return function boolOp(){
+						return (function recurse(functions,args){
+							if(functions.length===1){
+								return !!functions[0].apply(this,args);
+							} else {
+								var first = functions[0].apply(this,args);
+								// short-circuit and and or
+								if(op===and && !first || op===or && first) return !!first;
+								return !!op(first,recurse.call(this,functions.slice(1),args));
+							}
+						}).call(this,functions,arguments);
+					}
+			}
 		};
 	});
 })();
