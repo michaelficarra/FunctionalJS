@@ -139,11 +139,6 @@ Function.extend({
 					return function(){
 						return !!fn.apply(this,arguments);
 					};
-				case 2:
-					var functions = arguments;
-					return function(){
-						return op(functions[0].apply(this,arguments),functions[1].apply(this,arguments));
-					};
 				default:
 					var functions = Array.prototype.slice.call(arguments);
 					return function boolOp(){
