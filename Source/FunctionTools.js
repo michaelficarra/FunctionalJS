@@ -267,11 +267,7 @@ Function.implement({
 				return ret;
 			});
 		}
-	})()
-
-});
-
-Function.implement({
+	})(),
 
 	partial: function partial(){
 		var partialArgs = Array.prototype.slice.call(arguments);
@@ -282,28 +278,28 @@ Function.implement({
 			});
 			return original.apply(this,collectedArgs.concat(passedArgs));
 		});
-	}.memoize(),
+	},
 
 	curry: function curry(){
 		var curriedArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			return original.apply(this,curriedArgs.concat(passedArgs));
 		});
-	}.memoize(),
+	},
 
 	rcurry: function rcurry(){
 		var curriedArgs = Array.prototype.slice.call(arguments);
 		return this.wrap(function(original,passedArgs){
 			return original.apply(this,passedArgs.concat(curriedArgs));
 		});
-	}.memoize(),
+	},
 
 	not: function not(){
 		if(arguments.length) return this.not().apply(this,arguments);
 		return this.wrap(function(fn,args){
 			return !fn.apply(this,args);
 		});
-	}.memoize(),
+	},
 
 	prepend: function prepend(){
 		var functions = arguments;
@@ -313,7 +309,7 @@ Function.implement({
 			},this);
 			return self.apply(this,args);
 		});
-	}.memoize(),
+	},
 
 	append: function append(){
 		var functions = arguments;
@@ -324,7 +320,7 @@ Function.implement({
 			},this);
 			return ret;
 		});
-	}.memoize(),
+	},
 
 	overload: function overload(funcTable){
 		if(!funcTable || instanceOf(funcTable,Function)) {
@@ -334,32 +330,32 @@ Function.implement({
 			funcTable[this.getArity()] = this;
 			return Function.overload(funcTable);
 		}
-	}.memoize(),
+	},
 
 	saturate: function saturate(){
 		var args = arguments;
 		return this.wrap(function(fn){
 			return fn.apply(this,args);
 		});
-	}.memoize(),
+	},
 
 	aritize: function aritize(arity){
 		return this.wrap(function(fn,args){
 			return fn.apply(this,args.slice(0,arity));
 		});
-	}.memoize(),
-
-	getArgs: function getArgs(){
-		var fn = this.getOrigin();
-		var args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/);
-		return args.filter(function(_){ return _ !== ""; });
-	}.memoize(),
+	},
 
 	getArity: function getArity(){
 		return this.arity || this.length || this.getArgs().length;
-	}.memoize()
+	}
 
 });
+
+Function.implement('getArgs',function getArgs(){
+	var fn = this.getOrigin();
+	var args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/);
+	return args.filter(function(_){ return _ !== ""; });
+}.memoize());
 
 
 // implement array methods
