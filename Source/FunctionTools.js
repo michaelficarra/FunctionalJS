@@ -178,10 +178,9 @@ Function.implement({
 		return origin;
 	},
 
-	memoize: function memoize(userMemos){
-		var keys = [], memos = {};
+	memoize: (function(){
 		function equalityCheck(a,b){
-			var type=typeOf(a);
+			var type = typeOf(a);
 			if(type !== typeOf(b)) return false;
 			switch(type){
 				case 'object':
@@ -197,44 +196,44 @@ Function.implement({
 						});
 				default:
 					// taken from google caja
-					if (a === b) {
-						// 0 is not -0
+					if (a === b) // 0 is not -0
 						return a !== 0 || 1/a === 1/b;
-					} else {
-						// NaN is NaN
+					else // NaN is NaN
 						return a !== a && b !== b;
-					}
 			}
 		};
-		keys.indexOf = function(key){
-			for(var i=0, l=this.length; i<l; i++){
+		function indexOf(key){
+			for(var i=0, l=this.length; i<l; i++)
 				if(
 					(this[i].context === undefined || equalityCheck(this[i].context,key.context))
 					&& (this[i].args === undefined || equalityCheck(this[i].args,   key.args   ))
 				)
 					return i;
-			};
 			return -1;
 		};
-		// initialize memo collection
-		Array.from(userMemos).each(function(memo){
-			memos[
-				keys.push({
-					context: memo.context,
-					args: Array.from(memo.args)
-				}) - 1
-			] = memo.returnValue;
-		});
-		return this.wrap(function(original,args){
-			var idx,
-				key = {
-					context: this,
-					args: args
-				};
-			if((idx=keys.indexOf(key)) > -1) return memos[idx];
-			return memos[keys.push(key) - 1] = original.apply(this,args);
-		});
-	}
+		return function memoize(userMemos){
+			var keys = [], memos = {};
+			keys.indexOf = indexOf;
+			// initialize memo collection
+			Array.from(userMemos).each(function(memo){
+				memos[
+					keys.push({
+						context: memo.context,
+						args: Array.from(memo.args)
+					}) - 1
+				] = memo.returnValue;
+			});
+			return this.wrap(function(original,args){
+				var idx,
+					key = {
+						context: this,
+						args: args
+					};
+				if((idx=keys.indexOf(key)) > -1) return memos[idx];
+				return memos[keys.push(key) - 1] = original.apply(this,args);
+			});
+		};
+	})()
 
 });
 
