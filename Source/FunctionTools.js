@@ -233,16 +233,11 @@ Function.implement({
 				return memos[keys.push(key) - 1] = original.apply(this,args);
 			});
 		};
-	})()
+	})(),
 
-});
+	toFunction: function toFunction(){ return this; },
 
-Function.implement({
-
-	toFunction: function toFunction(){ return this; }.memoize(),
-
-	traced: function traced(name, opts){
-		opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
+	traced: (function(){
 		var console  = window.console,
 			log      = (console && console.log)      ? console.log.bind(console)      : Function.empty,
 			error    = (console && console.error)    ? console.error.bind(console)    : Function.empty,
@@ -251,25 +246,32 @@ Function.implement({
 			time     = (console && console.time)     ? console.time.bind(console)     : Function.empty,
 			timeEnd  = (console && console.timeEnd)  ? console.timeEnd.bind(console)  : Function.empty,
 			trace    = (console && console.trace)    ? console.trace.bind(console)    : Function.empty;
-		return this.wrap(function(fn,args){
+		return function traced(name, opts){
+			opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
 			name = name || fn.getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1];
 			name = name.toString ? name.toString() : Object.prototype.toString.call(name);
-			group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
-			var ret, exception, success = true;
-			if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
-			if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
-			if(opts & Function.TRACE_TIME) time(fn);
-			group('Console Output');
-			try { ret = fn.apply(this,args); } catch(e) { success = false; exception = e; }
-			groupEnd();
-			if(opts & Function.TRACE_TIME) timeEnd(fn);
-			if(opts & Function.TRACE_RETURN) success ? log(' Return value: ',ret) : error(exception);
-			if(opts & Function.TRACE_STACK) trace();
-			groupEnd();
-			if(!success) throw exception;
-			return ret;
-		});
-	}.memoize(),
+			return this.wrap(function(fn,args){
+				group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
+				var ret, exception;
+				if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
+				if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
+				if(opts & Function.TRACE_TIME) time(fn);
+				group('Console Output');
+				try { ret = fn.apply(this,args); } catch(e) { exception = e; }
+				groupEnd();
+				if(opts & Function.TRACE_TIME) timeEnd(fn);
+				if(opts & Function.TRACE_RETURN) exception ? error(exception) : log(' Return value: ',ret);
+				if(opts & Function.TRACE_STACK) trace();
+				groupEnd();
+				if(exception) throw exception;
+				return ret;
+			});
+		}
+	})()
+
+});
+
+Function.implement({
 
 	partial: function partial(){
 		var partialArgs = Array.prototype.slice.call(arguments);
