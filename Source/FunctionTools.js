@@ -133,7 +133,7 @@ Function.extend({
 	new Hash({'xor':xor,'and':and,'or':or}).each(function(op,opName){
 		Function[opName] = function boolGen(){
 			switch(arguments.length){
-				case 0: return Function.lambda(undefined);
+				case 0: return Function.empty;
 				case 1:
 					var fn = arguments[0];
 					return function(){
