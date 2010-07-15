@@ -130,7 +130,7 @@ Function.extend({
 	var xor = function(a,b){ return !!(!!a ^ !!b); },
 		and = function(a,b){ return !!(a && b); },
 		or  = function(a,b){ return !!(a || b); };
-	new Hash({'xor':xor,'and':and,'or':or}).each(function(op,opName){
+	Hash.each({xor:xor,and:and,or:or},function(op,opName){
 		Function[opName] = function boolGen(){
 			switch(arguments.length){
 				case 0: return Function.empty;
