@@ -13,16 +13,10 @@ provides: [
 ... */
 
 
-// globals, class properties, constants
-Function._ = function(_){
-	var caller = arguments.callee.caller || arguments.caller;
-	if(!caller) return;
-	var args = caller.arguments;
-	if(_===undefined) args._ = (args._===undefined ? 0 : args._+1);
-	return args[_===undefined ? args._ : _];
-};
-if(this._ === undefined) this._ = Function._;
+(function(global){
 
+
+// constants for Function::traced
 (function(){
 	var n=0,
 		constants =
@@ -34,6 +28,8 @@ if(this._ === undefined) this._ = Function._;
 		];
 	Function.TRACE_ALL = Function.TRACE_NONE = 0;
 	constants.each(function(constant){
+		// calculate powers of two to assign to the constants. this allows
+		// any combination of constants to be defined as a single value
 		Function.TRACE_ALL |= Function[constant] = n = n << 1 || 1;
 	});
 })();
@@ -41,6 +37,16 @@ if(this._ === undefined) this._ = Function._;
 
 // class methods
 Function.extend({
+
+	_: function(_){
+		var caller = arguments.callee.caller || arguments.caller;
+		if(!caller) return;
+		var args = caller.arguments;
+		// if no index given, set/increment the successive argument iterator
+		if(_===undefined) args._ = (args._===undefined ? 0 : args._+1);
+		// return the argument indexed by the given index or the iterator
+		return args[_===undefined ? args._ : _];
+	},
 
 	empty: function empty(){},
 
@@ -98,6 +104,7 @@ Function.extend({
 		return function composed(){
 			var lastReturn = Array.prototype.slice.call(arguments);
 			args.reverse().each(function(fn,i){
+				// only the outermost function may be given more than one argument
 				lastReturn = fn[i==0 ? 'apply' : 'call'](this,lastReturn);
 			},this);
 			return lastReturn;
@@ -105,6 +112,7 @@ Function.extend({
 	},
 
 	overload: function overload(funcTable){
+		// make a table if only a list of functions was given
 		if(!funcTable || instanceOf(funcTable,Function)){
 			var newTable = {};
 			for(var i=0, l=arguments.length; i<l; i++){
@@ -112,7 +120,7 @@ Function.extend({
 			}
 			funcTable = newTable;
 		}
-		return function(){
+		return function overloaded(){
 			var fn = funcTable[arguments.length];
 			if(!fn || !instanceOf(fn,Function)) return;
 			return fn.apply(this,arguments);
@@ -125,21 +133,28 @@ Function.extend({
 	'concat': Function.concatenate
 });
 
-// Boolean function logic
+// boolean function logic: Function.and, Function.or, Function.xor
 (function(){
 	var xor = function(a,b){ return !!(!!a ^ !!b); },
 		and = function(a,b){ return !!(a && b); },
 		or  = function(a,b){ return !!(a || b); };
-	Hash.each({xor:xor,and:and,or:or},function(op,opName){
+	Object.each({xor:xor,and:and,or:or},function(op,opName){
 		Function[opName] = function boolGen(){
 			switch(arguments.length){
-				case 0: return Function.empty;
+				// based on the number of functions given...
+				case 0:
+					// generate a function that returns undefined
+					return Function.empty;
 				case 1:
+					// generate a function that returns the Boolean representation
+					// of the return value of the given function
 					var fn = arguments[0];
 					return function(){
 						return !!fn.apply(this,arguments);
 					};
 				default:
+					// generate a function that calls each given function consecutively,
+					// applying the chosen operator to their return values at each step
 					var functions = Array.prototype.slice.call(arguments);
 					return function boolOp(){
 						return (function recurse(functions,args){
@@ -147,7 +162,7 @@ Function.extend({
 								return !!functions[0].apply(this,args);
 							} else {
 								var first = functions[0].apply(this,args);
-								// short-circuit and and or
+								// short-circuit `and` and `or`
 								if(op===and && !first || op===or && first) return !!first;
 								return op(first,recurse.call(this,functions.slice(1),args));
 							}
@@ -179,6 +194,7 @@ Function.implement({
 	},
 
 	memoize: (function(){
+		// used to check if arguments/contexts are functionally equivalent
 		function equalityCheck(a,b){
 			var type = typeOf(a);
 			if(type !== typeOf(b)) return false;
@@ -191,10 +207,12 @@ Function.implement({
 				case 'collection':
 				case 'arguments':
 					return a.length === b.length &&
-						Array.every(a,function(ai,i){
-							return equalityCheck(ai,b[i]);
+						Array.every(a,function(a_i,i){
+							return equalityCheck(a_i,b[i]);
 						});
 				default:
+					try { a = a.valueOf(); } catch(e){}
+					try { b = b.valueOf(); } catch(e){}
 					// taken from google caja
 					if (a === b) // 0 is not -0
 						return a !== 0 || 1/a === 1/b;
@@ -214,7 +232,7 @@ Function.implement({
 		return function memoize(userMemos){
 			var keys = [], memos = {};
 			keys.indexOf = indexOf;
-			// initialize memo collection
+			// initialize the memo collection
 			Array.from(userMemos).each(function(memo){
 				memos[
 					keys.push({
@@ -224,12 +242,12 @@ Function.implement({
 				] = memo.returnValue;
 			});
 			return this.wrap(function(original,args){
-				var idx,
-					key = {
+				var key = {
 						context: this,
 						args: args
-					};
-				if((idx=keys.indexOf(key)) > -1) return memos[idx];
+					},
+					idx = keys.indexOf(key);
+				if(idx > -1) return memos[idx];
 				return memos[keys.push(key) - 1] = original.apply(this,args);
 			});
 		};
@@ -247,22 +265,31 @@ Function.implement({
 			timeEnd  = (console && console.timeEnd)  ? console.timeEnd.bind(console)  : Function.empty,
 			trace    = (console && console.trace)    ? console.trace.bind(console)    : Function.empty;
 		return function traced(name, opts){
-			opts = opts || (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN);
+			// define default options to be used if none are specified
+			opts = opts===undefined ? (Function.TRACE_ARGUMENTS | Function.TRACE_RETURN) : opts;
+			// try to figure out the name of the function if none is specified
 			name = name || fn.getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1];
 			name = name.toString ? name.toString() : Object.prototype.toString.call(name);
 			return this.wrap(function(fn,args){
-				group('Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function')+' (',fn,')');
-				var ret, exception;
-				if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
-				if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
-				if(opts & Function.TRACE_TIME) time(fn);
-				group('Console Output');
+				var title = 'Called '+(name ? '"'+name.replace(/"/g,'\\"')+'"' : 'anonymous function'),
+					exception,
+					ret;
+				if(opts === Function.TRACE_NONE) log(title+' (',fn,')');
+				if(opts !== Function.TRACE_NONE) {
+					group(title+' (',fn,')');
+					if(opts & Function.TRACE_ARGUMENTS) log(' Arguments: ',args);
+					if(opts & Function.TRACE_CONTEXT) log(' Context: ',this);
+					if(opts & Function.TRACE_TIME) time(fn);
+					group('Console Output');
+				}
 				try { ret = fn.apply(this,args); } catch(e) { exception = e; }
-				groupEnd();
-				if(opts & Function.TRACE_TIME) timeEnd(fn);
-				if(opts & Function.TRACE_RETURN) exception ? error(exception) : log(' Return value: ',ret);
-				if(opts & Function.TRACE_STACK) trace();
-				groupEnd();
+				if(opts !== Function.TRACE_NONE) {
+					groupEnd();
+					if(opts & Function.TRACE_TIME) timeEnd(fn);
+					if(opts & Function.TRACE_RETURN) exception ? error(exception) : log(' Return value: ',ret);
+					if(opts & Function.TRACE_STACK) trace();
+					groupEnd();
+				}
 				if(exception) throw exception;
 				return ret;
 			});
@@ -274,7 +301,9 @@ Function.implement({
 		return this.wrap(function(original,passedArgs){
 			var collectedArgs = [];
 			partialArgs.each(function(arg){
-				collectedArgs.push([undefined,Function._].contains(arg) ? passedArgs.shift() : arg);
+				// if the argument is one of our wildcards, replace it with the next
+				// argument given during this call, else use the predefiend argument
+				collectedArgs.push(arg===undefined || arg===Function._ ? passedArgs.shift() : arg);
 			});
 			return original.apply(this,collectedArgs.concat(passedArgs));
 		});
@@ -295,6 +324,7 @@ Function.implement({
 	},
 
 	not: function not(){
+		// if arguments are given, immediately call the notted function
 		if(arguments.length) return this.not().apply(this,arguments);
 		return this.wrap(function(fn,args){
 			return !fn.apply(this,args);
@@ -351,6 +381,8 @@ Function.implement({
 
 });
 
+// define Function::getArgs after Function::memoize is committed
+// to allow for auto-memoization
 Function.implement('getArgs',function getArgs(){
 	var fn = this.getOrigin();
 	var args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/);
@@ -376,7 +408,7 @@ Function.implement({
 });
 
 
-// Array.toFunction, Hash.toFunction
+// Array::toFunction, Hash::toFunction, Object.toFunction
 (function(){
 	var toFunction = function(){
 		var self = this;
@@ -384,7 +416,16 @@ Function.implement({
 	};
 	Array.implement('toFunction',toFunction);
 	if(Hash) Hash.implement('toFunction',toFunction);
+	Object.toFunction = function(obj){ return toFunction.call(obj); }
 })();
+
+
+// add Function._ to the global scope
+if(global._ === undefined) global._ = Function._;
+
+
+})(this);
+
 
 /* Copyright 2010 Michael Ficarra
 This program is distributed under the (very open)

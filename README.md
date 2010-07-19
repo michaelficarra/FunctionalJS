@@ -14,10 +14,10 @@ specific use case for `FunctionTools` as a whole. However, the documentation
 for each of the methods provided by `FunctionTools` is listed below.
 
 
-Globals
--------
+Class Methods
+-------------
 
-### \_ / Function.\_ (\[index\])
+### Function.\_ (\[index\])
 The underscore function accesses successive arguments of the function in which
 it is called. If a number is given as an argument, the argument at that index
 is returned and the internal pointer is not advanced.
@@ -29,10 +29,6 @@ placeholder for undefined arguments rather than passing `undefined`.
 		return [_(),_(3),_(),_(),_(0),_(),_()];
 	}
 	fn(1,2,3,4)    // [1,4,2,3,1,4,undefined]
-
-
-Class Methods
--------------
 
 ### Function.empty => undefined
 Returns `undefined` for any given value. Useful when overriding another
@@ -190,7 +186,7 @@ value of that function is returned. When no arguments are given, returns
 Behaves exactly as `Function.and`, except uses Boolean *OR* logic instead of
 Boolean *AND* logic.
 
-### Function.or (\*fn) => function(\*arg)
+### Function.xor (\*fn) => function(\*arg)
 Behaves as `Function.and` and `Function.or`, except uses Boolean *XOR* logic
 and does not short-circuit.
 
@@ -429,6 +425,10 @@ arguments.
 	var fn = function (a,b){ return a+b; }    // <#Function:fn>
 	fn.reduce([1,2,3,4],0)                    // 10
 
+
+Array Methods
+-------------
+
 ### Array::toFunction => function(*args)
 Returns a function that returns the value of any property of the array upon
 which `toFunction` was called. Most useful for accessing the numeric properties
@@ -440,6 +440,10 @@ of the array.
 	fn(2)                           // 'c'
 	fn(3)                           // undefined
 	fn('length')                    // 3
+
+
+Hash Methods
+------------
 
 ### Hash::toFunction => function(*args)
 Returns a function that returns the value of any property of the hash upon
@@ -453,11 +457,20 @@ which `toFunction` was called.
 	fn('hasOwnProperty')                // <#Function:hasOwnProperty>
 
 
+Globals
+-------
+
+### \_
+The global \_ function is a short, global reference to Function.\_.
+
+
 TODO
 ----
 
 * example code for Function::memoize
 * document Function::traced
+* write tests for Object.toFunction
+* document Object.toFunction
 * update YAML header and package.yml to reflect final API
 
 Known Issues

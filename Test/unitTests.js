@@ -549,6 +549,27 @@ describe('Function::memoize',{
 		value_of(fn(0)).should_not_be(fn(-0));
 		value_of(fn(0)).should_be(fn(0));
 		value_of(fn(-0)).should_be(fn(-0));
+	},
+	'all native data types are memoized correctly': function(){
+		var types = [0, 2, NaN, Infinity, -Infinity, -0,
+				true, false,"string", undefined, null,
+				[], {}, {a:0,b:1}, new Date(), /regex/],
+			fn = function(_){ return [this,_,false]; },
+			memos = [];
+		//(3).times(function(){ types.push(Array.clone(types)); });
+		types.each(function(type){
+			memos.push({ returnValue: true, args: type });
+			if(type===null || type===undefined) return;
+			memos.push({ returnValue: true, context: type });
+			memos.push({ returnValue: true, args: type, context: type });
+		});
+		fn = fn.memoize(memos);
+		types.each(function(type){
+			value_of(fn.apply(null,Array.from(type))).should_be_true();
+			if(type===null || type===undefined) return;
+			value_of(fn.call(type)).should_be_true();
+			value_of(fn.apply(type,Array.from(type))).should_be_true();
+		});
 	}
 });
 
