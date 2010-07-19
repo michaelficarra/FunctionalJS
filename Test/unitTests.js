@@ -556,7 +556,7 @@ describe('Function::memoize',{
 				[], {}, {a:0,b:1}, new Date(), /regex/],
 			fn = function(_){ return [this,_,false]; },
 			memos = [];
-		//(3).times(function(){ types.push(Array.clone(types)); });
+		(3).times(function(){ types.push(Array.clone(types)); });
 		types.each(function(type){
 			memos.push({ returnValue: true, args: type });
 			if(type===null || type===undefined) return;
