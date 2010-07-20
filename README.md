@@ -152,7 +152,7 @@ passed to the returned function.
 		fnB = function(x){ return 'B'; },
 		fnC = function(y,y){ return 'C'; },
 		fnD = funciton(z,z,z){ return 'D'; }
-	var overloaded = Function.overload(fnA,fnB,fnC,fnD)  // <#Function:overload>
+	var overloaded = Function.overload(fnA,fnB,fnC,fnD)  // <#Function:overloaded>
 	overload()           // 'A'
 	overload(0,0)        // 'C'
 	overload(0,0,0,0)    // undefined
