@@ -30,7 +30,7 @@ placeholder for undefined arguments rather than passing `undefined`.
 	}
 	fn(1,2,3,4)    // [1,4,2,3,1,4,undefined]
 
-### Function.empty => undefined
+### Function.empty ⇒ undefined
 Returns `undefined` for any given value. Useful when overriding another
 function and desiring no action.
 
@@ -40,7 +40,7 @@ function and desiring no action.
 	Function.empty(null)    // undefined
 	Function.empty(true)    // undefined
 
-### Function.identity (value) => value
+### Function.identity (value) ⇒ value
 Returns whatever value is given. When many values are given, returns an array
 containing those values. Useful when a function is expected and one would like
 to pass a constant value.
@@ -54,13 +54,13 @@ to pass a constant value.
 	Function.identity(0,1,2)             // [0,1,2]
 	Function.identity(0,undefined)       // [0,undefined]
 
-### Function.context => this
+### Function.context ⇒ this
 A function that returns its context (the `this` value).
 
 	Function.context()            // global scope object, likely window
 	Function.context.call(1,2)    // 1
 
-### Function.lambda (value) => function() => value
+### Function.lambda (value) ⇒ function() ⇒ value
 Returns a function that returns the value passed to `Function.lambda`.
 
 	var fn = Function.lambda("lambda")    // <#Function:fn>
@@ -68,7 +68,7 @@ Returns a function that returns the value passed to `Function.lambda`.
 	fn(false)    // "lambda"
 	fn(18)       // "lambda"
 
-### Function.pluck (property) => function(obj) => obj[property]
+### Function.pluck (property) ⇒ function(obj) ⇒ obj[property]
 Returns a function that returns the property of the passed object referenced by
 the argument passed to `Function.pluck`.
 
@@ -81,7 +81,7 @@ the argument passed to `Function.pluck`.
 	len("string")                     // 6
 	len({test:"abc",length:"def"})    // "def"
 
-### Function.invoke (method, \*defaultArg) => function(obj)
+### Function.invoke (method, \*defaultArg) ⇒ function(obj)
 Returns a function that calls the method referenced by the first argument
 passed to `Function.invoke` of the passed object. Any additional arguments
 passed to `Function.invoke` will be used as the default arguments to be passed
@@ -98,7 +98,7 @@ instead of passing the default arguments.
 	first(arr)        // 'a'
 	first(arr,'b')    // 'b'
 
-### Function.sequence (\*fn) => function(\*arg)
+### Function.sequence (\*fn) ⇒ function(\*arg)
 Creates a function that calls the first passed function on the first call, the
 second passed function on the next call (if one was passed), and so on. The
 last function is treated as if it proceeds the first function. Arguments passed
@@ -116,7 +116,7 @@ arguments, Function.sequence returns Function.empty.
 	seq()    // 1
 	seq()    // 2
 
-### Function.concat / Function.concatenate (\*fn) => function(\*arg)
+### Function.concat\[enate\] (\*fn) ⇒ function(\*arg)
 Creates a function that runs all functions passed to `Function.concat`
 sequentially. The return value of the last function is returned by the
 generated function. Arguments given to the generated function are passed to all
@@ -129,7 +129,7 @@ functions.
 	Function.concat(fnA,fnB,fnC)(100)    // 2
 	sharedArr                            // ['A','B',123]
 
-### Function.compose (\*fn) => function(\*arg)
+### Function.compose (\*fn) ⇒ function(\*arg)
 Creates a function that runs all functions passed in reverse order, passing the
 return value of the last function run as the input to the next function. Any
 arguments given to the generated function will be passed to the first function
@@ -141,7 +141,7 @@ called.
 		fn = Function.compose(a,b,c)
 	fn('d','e')    // "abcde"
 
-### Function.overload (\*fn) => function(\*arg)
+### Function.overload (\*fn) ⇒ function(\*arg)
 If an object having numeric keys is given as the sole argument, returns a
 function that will call the function indexed by the number of arguments passed
 to it. If a list of functions is given as arguments, returns a function that
@@ -152,7 +152,7 @@ passed to the returned function.
 		fnB = function(x){ return 'B'; },
 		fnC = function(y,y){ return 'C'; },
 		fnD = funciton(z,z,z){ return 'D'; }
-	var overloaded = Function.overload(fnA,fnB,fnC,fnD)  // <#Function:overload>
+	var overloaded = Function.overload(fnA,fnB,fnC,fnD)  // <#Function:overloaded>
 	overload()           // 'A'
 	overload(0,0)        // 'C'
 	overload(0,0,0,0)    // undefined
@@ -164,7 +164,7 @@ passed to the returned function.
 	overloaded(0,0,0)                    // undefined
 	overloaded.apply({},new Array(8))    // 'A'
 
-### Function.and (\*fn) => function(\*arg)
+### Function.and (\*fn) ⇒ function(\*arg)
 Returns a function that returns the result of performing a Boolean AND
 operation on the return values of all functions passed to `Function.and`.
 Arguments given to the generated function will be passed to the called
@@ -182,11 +182,11 @@ value of that function is returned. When no arguments are given, returns
 	Function.and(fnFalse,fnFalse)()    // false
 	Function.and(fnTrue,fntrue)()      // true
 
-### Function.or (\*fn) => function(\*arg)
+### Function.or (\*fn) ⇒ function(\*arg)
 Behaves exactly as `Function.and`, except uses Boolean *OR* logic instead of
 Boolean *AND* logic.
 
-### Function.xor (\*fn) => function(\*arg)
+### Function.xor (\*fn) ⇒ function(\*arg)
 Behaves as `Function.and` and `Function.or`, except uses Boolean *XOR* logic
 and does not short-circuit.
 
@@ -194,10 +194,10 @@ and does not short-circuit.
 Instance Methods
 ----------------
 
-### toFunction => this
+### toFunction ⇒ this
 Returns the function upon which `toFunction` is called.
 
-### wrap (fn, \[bind\]) => function(\*arg)
+### wrap (fn, \[bind\]) ⇒ function(\*arg)
 Returns a function that calls the given function, passing to it this function
 instance as the first argument and the arguments given to the generated
 function as the second argument.
@@ -228,7 +228,7 @@ Examples of usage taken from the source:
 		}
 	});
 
-### getOrigin => function(\*arg)
+### getOrigin ⇒ function(\*arg)
 *Note: All Function instance methods defined in FunctionTools that return a function use `wrap` to create it; you should, too!*
 When called on functions passed through `wrap`, `getOrigin` returns the value
 returned when `getOrigin` is applied to the function on which `wrap` was
@@ -246,7 +246,7 @@ modifications applied to it.
 	notted.getOrigin() === fn     // true
 	curried.getOrigin() === fn    // true
 
-### memoize (\[memos\]) => function(*args)
+### memoize (\[memos\]) ⇒ function(*args)
 *Note: Objects are compared using exact equality (`===`), arrays are considered equal if their contents are equal*
 
 Returns a memoized version of the function upon which memoize is called.  The
@@ -269,7 +269,7 @@ containing zero or more values.
 
 	TODO: example code
 
-### partial (\*args) => function(\*args)
+### partial (\*args) ⇒ function(\*args)
 *Note: Function._ is defined as _ in the global scope*
 
 Creates a partially applied function that has any passed arguments that are not
@@ -280,7 +280,7 @@ function accepts any unbound arguments.
 	var part = fn.partial(1,undefined,_,4)      // <#Function:part>
 	part(2,3,5)                                 // [1,2,3,4,5]
 
-### curry (\*args) => function(\*args)
+### curry (\*args) ⇒ function(\*args)
 A simplified `Function::partial`. Creates a partially applied function that has
 the arguments given to `curry` bound to its leftmost arguments in the order in
 which they are given.
@@ -291,7 +291,7 @@ which they are given.
 	var most = some.curry(3)        // <#Function:most>
 	var all = most(4,5)             // [1,2,3,4,5]
 
-### rcurry (\*args) => function(\*args)
+### rcurry (\*args) ⇒ function(\*args)
 Creates a partially applied function that has the arguments given to `rcurry`
 bound to its rightmost arguments in the order in which they are given.
 
@@ -301,7 +301,7 @@ bound to its rightmost arguments in the order in which they are given.
 	var most = some.rcurry(3)       // <#Function:most>
 	var all = most(1,2)             // [1,2,3,4,5]
 
-### not (\*args) => mixed
+### not (\*args) ⇒ mixed
 When called with no arguments, returns a function that returns the opposite
 Boolean representation of the return value of the function upon which `not` is
 called. When arguments are passed to `not`, the opposite Boolean representation
@@ -315,7 +315,7 @@ those arguments is returned.
 	powerOfTwo(5)        // false
 	powerOfTwo.not(5)    // true
 
-### append (\*fn) => function(\*args)
+### append (\*fn) ⇒ function(\*args)
 Returns a new function that runs the given function(s) after running the
 function upon which `append` was called. Any arguments passed to the generated
 function will be passed to all functions. The return value of the generated
@@ -338,7 +338,7 @@ function is the return value of the function upon which `append` was called.
 	fnABC()      // 0
 	sharedArr    // [0,0,1,1,2,0,1,2]
 
-### prepend (\*fn) => function(\*args)
+### prepend (\*fn) ⇒ function(\*args)
 Returns a new function that runs the given function(s) before running the
 function upon which `prepend` was called. Any arguments passed to the generated
 function will be passed to all functions. The return value of the generated
@@ -361,7 +361,7 @@ function is the return value of the function upon which `prepend` was called.
 	fnABC(3)     // 2
 	sharedArr    // [0,1,2,3,4,3,4,5]
 
-### overload (\[funcTable\]) => function(\*args)
+### overload (\[funcTable\]) ⇒ function(\*args)
 If a numerically indexed object containing functions is given as the only
 argument, the function upon which `overload` is called is added to the object
 (indexed by its arity) and the object is passed to `Function.overload`. If a
@@ -376,7 +376,7 @@ case, the return value of `Function.overload` is returned.
 	fnA.overload({1:fnB,2:fnC})(0)      // "B"
 	fnC.overload(fnA,fnB)()             // "C"
 
-### saturate (*args) => function()
+### saturate (*args) ⇒ function()
 Returns a function that fixes the arguments passed to `saturate` to the
 function upon which it is called. Arguments given to the returned function will
 be ignored in favor of the originally passed arguments.
@@ -388,7 +388,7 @@ be ignored in favor of the originally passed arguments.
 	Function.identity.saturate(1)()           // 1
 	Function.identity.saturate(2)(1,2)        // 2
 
-### aritize (arity) => function(*args)
+### aritize (arity) ⇒ function(*args)
 If given a non-negative <arity>, a function that only accepts the first <arity>
 arguments is returned. If <arity> is less than zero, a function that accepts
 all but the last <arity> arguments is returned.
@@ -397,7 +397,7 @@ all but the last <arity> arguments is returned.
 	Function.identity.aritize(0)(0,1)         // undefined
 	Function.identity.aritize(-2)(0,1,2)      // 0
 
-### getArgs => array
+### getArgs ⇒ array
 Returns an array containing the arguments expected by the function upon which
 `getArgs` is called.
 
@@ -405,7 +405,7 @@ Returns an array containing the arguments expected by the function upon which
 	function(a,b,c){}.memoize().getArgs()     // ["a","b","c"]
 	function(){}.getArgs()                    // []
 
-### getArity => integer
+### getArity ⇒ integer
 Returns the number of arguments expected by the function upon which `getArity`
 is called.
 
@@ -429,7 +429,7 @@ arguments.
 Array Instance Methods
 ----------------------
 
-### Array::toFunction => function(*args)
+### Array::toFunction ⇒ function(*args)
 Returns a function that returns the value of any property of the array upon
 which `toFunction` was called. Most useful for accessing the numeric properties
 of the array.
@@ -445,7 +445,7 @@ of the array.
 Hash Instance Methods
 ---------------------
 
-### Hash::toFunction => function(*args)
+### Hash::toFunction ⇒ function(*args)
 Returns a function that returns the value of any property of the hash upon
 which `toFunction` was called.
 
