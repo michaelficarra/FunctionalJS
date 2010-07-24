@@ -471,7 +471,6 @@ TODO
 * document Function::traced
 * write tests for Object.toFunction
 * document Object.toFunction
-* update YAML header and package.yml to reflect final API
 
 Known Issues
 ------------

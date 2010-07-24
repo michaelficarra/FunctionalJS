@@ -9,39 +9,53 @@ tags: [
     empty,
     # Function.identity
     identity,
+    # Function.context
+    context,
     # Function.lambda
     lambda,
     # Function.pluck
     pluck,
     # Function.invoke
     invoke,
-    # Function.combine,
-    sequence, combine, concat, concatenate,
+    # Function.sequence,
+    sequence,
+    # Function.concatenate
+    combine, concat, concatenate,
     # Function.compose
-    compose, 
+    compose,
     # Function.overload
     overload,
-    # wrap()
+    # Function.and, Function.or, Function.xor
+    and, or, xor,
+    # Function::toFunction, Array::toFunction, Hash::toFunction, Object.toFunction
+    toFunction,
+    # Function::wrap
     wrap, wrapping, wrapper
-    # memoize()
+    # Function::memoize
     memo, memoize, memoization, cache, caching,
-    # partial()
-    partial, default, arguments,
-    # curry(), rcurry()
-    curry, rcurry, default arguments,
-    # not()
+    # Function::partial
+    partial, default, arguments, default arguments,
+    # Function::curry, Function::rcurry
+    curry, rcurry,
+    # Function::not
     not,
-    # prepend()
-    prepend,
-    # append()
+    # Function::append
     append,
-    # getArgs()
+    # Function::prepend
+    prepend,
+    # Function::saturate
+    saturate,
+    # Function::aritize
+    aritize,
+    # Function::getArgs
     getArgs, get arguments, arglist, argument, list, argument list,
-    # getArity()
+    # Function::getArity
     getArity, arity, length,
-    # Array::toFunction, Hash::toFunction
-    toFunction, Array.toFunction, Hash.toFunction
+    # Function::foreach, Function::each, Function::every, Function::some,
+    # Function::filter, Function::map, Function::reduce, Function::reduceRight,
+    # Function::sort, Function::foldl, Function::foldr
+    foreach, each, every, some, filter, map, reduce, reduceRight, sort, foldl, foldr
 ]
-current: 0.1
+current: 0.9
 docs: 'http://github.com/michaelficarra/FunctionTools/blob/master/README.md'
-demo: 'http://fiddle.jshell.net/Qn7Vu/0/show/light/'
+demo: 'http://fiddle.jshell.net/Qn7Vu/1/show/light/'
