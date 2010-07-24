@@ -875,7 +875,7 @@ describe('Array methods',{
 	}
 });
 
-describe('Array::toFunction, Hash::toFunction',{
+describe('toFunction methods',{
 	before: function(){
 
 	},
@@ -891,6 +891,7 @@ describe('Array::toFunction, Hash::toFunction',{
 		value_of(fn(4)).should_be_undefined();
 	},
 	'Hash::toFunction': function(){
+		if(!Hash) return;
 		var hash = new Hash({0:3,'str':17,3:'str',undefined:1});
 		var fn = hash.toFunction();
 		value_of(fn(0)).should_be(hash[0]);
@@ -898,6 +899,17 @@ describe('Array::toFunction, Hash::toFunction',{
 		value_of(fn('str')).should_be(hash['str']);
 		value_of(fn(3)).should_be(hash[3]);
 		value_of(fn()).should_be(hash[undefined]);
+		value_of(fn(1)).should_be_undefined();
+		value_of(fn(1,0)).should_be_undefined();
+	},
+	'Object.toFunction': function(){
+		var obj = {0:3,'str':17,3:'str',undefined:1};
+		var fn = Object.toFunction(obj);
+		value_of(fn(0)).should_be(obj[0]);
+		value_of(fn(0,1)).should_be(obj[0]);
+		value_of(fn('str')).should_be(obj['str']);
+		value_of(fn(3)).should_be(obj[3]);
+		value_of(fn()).should_be(obj[undefined]);
 		value_of(fn(1)).should_be_undefined();
 		value_of(fn(1,0)).should_be_undefined();
 	}
