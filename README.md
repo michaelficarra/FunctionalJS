@@ -426,8 +426,8 @@ arguments.
 	fn.reduce([1,2,3,4],0)                    // 10
 
 
-Array Methods
--------------
+Array Instance Methods
+----------------------
 
 ### Array::toFunction ⇒ function(*args)
 Returns a function that returns the value of any property of the array upon
@@ -442,8 +442,8 @@ of the array.
 	fn('length')                    // 3
 
 
-Hash Methods
-------------
+Hash Instance Methods
+---------------------
 
 ### Hash::toFunction ⇒ function(*args)
 Returns a function that returns the value of any property of the hash upon
@@ -471,7 +471,6 @@ TODO
 * document Function::traced
 * write tests for Object.toFunction
 * document Object.toFunction
-* update YAML header and package.yml to reflect final API
 
 Known Issues
 ------------

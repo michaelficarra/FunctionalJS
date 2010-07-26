@@ -1,14 +1,22 @@
 /*
 ---
-description: Extensions to the Function class that allow a more functional programming style
+description: Extensions that allow a more functional programming style
 license: LGPL
 authors: ['Michael Ficarra']
-requires: [Core,Function,Class]
+requires: [Core,Function,Class,Array]
 provides: [
-	FunctionTools, Function._, Function.empty, Function.identity, Function.lambda,
-	Function.combine, Function.compose, Function.overload, Function::wrap, Function::memoize,
-	Function::partial, Function::curry, Function::not, Function::prepend, Function::append,
-	Function::overload, Function::getArgs, Function::getArity, Array::toFunction, Hash::toFunction
+	FunctionTools, Function._, Function.empty, Function.identity,
+	Function.context, Function.lambda, Function.pluck, Function.invoke,
+	Function.sequence, Function.concatenate, Function.concat, Function.compose,
+	Function.overload, Function.and, Function.or, Function.xor,
+	Function::toFunction, Function::wrap, Function::getOrigin,
+	Function::memoize, Function::partial, Function::curry, Function::rcurry,
+	Function::not, Function::append, Function::prepend, Function::overload,
+	Function::saturate, Function::aritize, Function::getArgs,
+	Function::getArity, Function::foreach, Function::each, Function::every,
+	Function::some, Function::filter, Function::map, Function::reduce,
+	Function::reduceRight, Function::sort, Function::foldl, Function::foldr,
+	Array::toFunction, Hash::toFunction, Object.toFunction
 ]
 ... */
 
