@@ -143,7 +143,7 @@ Function.extend({
 
 // boolean function logic: Function.and, Function.or, Function.xor
 (function(){
-	var xor = function(a,b){ return !!(!!a ^ !!b); },
+	var xor = function(a,b){ return !!(!a ^ !b); },
 		and = function(a,b){ return !!(a && b); },
 		or  = function(a,b){ return !!(a || b); };
 	Object.each({xor:xor,and:and,or:or},function(op,opName){
