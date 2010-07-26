@@ -902,7 +902,7 @@ describe('toFunction methods',{
 		value_of(fn(1)).should_be_undefined();
 		value_of(fn(1,0)).should_be_undefined();
 	},
-	'Object.toFunction': function(){
+	'Object.toFunction basic objects': function(){
 		var obj = {0:3,'str':17,3:'str',undefined:1};
 		var fn = Object.toFunction(obj);
 		value_of(fn(0)).should_be(obj[0]);
@@ -912,5 +912,17 @@ describe('toFunction methods',{
 		value_of(fn()).should_be(obj[undefined]);
 		value_of(fn(1)).should_be_undefined();
 		value_of(fn(1,0)).should_be_undefined();
+	},
+	'Object.toFunction complex objects': function(){
+		var node = document.createElement('div');
+		node.id = 'testID';
+		node.style.borderLeftWidth = '1px';
+		node.style.color = '#EEE';
+		var div = Object.toFunction(node),
+			style = Object.toFunction(div('style'));
+		value_of(div('tagName')).should_be(node.tagName);
+		value_of(div('id')).should_be(node.id);
+		value_of(style('borderLeftWidth')).should_be(node.style.borderLeftWidth);
+		value_of(style('color')).should_be(node.style.color);
 	}
 });
