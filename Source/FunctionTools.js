@@ -46,7 +46,7 @@ provides: [
 // class methods
 Function.extend({
 
-	_: function(_){
+	_: function _(_){
 		var caller = arguments.callee.caller || arguments.caller;
 		if(!caller) return;
 		var args = caller.arguments;
