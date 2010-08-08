@@ -424,7 +424,7 @@ Function.implement({
 	};
 	Array.implement('toFunction',toFunction);
 	if(Hash) Hash.implement('toFunction',toFunction);
-	Object.toFunction = function(obj){ return toFunction.call(obj); }
+	Object.extend('toFunction',function(obj){ return toFunction.call(obj); });
 })();
 
 

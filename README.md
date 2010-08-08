@@ -457,6 +457,30 @@ which `toFunction` was called.
 	fn('hasOwnProperty')                // <#Function:hasOwnProperty>
 
 
+Object Class Methods
+--------------------
+
+### Object.toFunction (obj) ⇒ function(*args)
+Returns a function that returns the value of any property of the first argument
+to `Object.toFunction`.
+
+	var obj = {a:0,b:1,c:2},            // {a:0,b:1,c:2}
+		fn = Object.toFunction(obj)     // <#Function:fn>
+	fn('a')                             // 0
+	fn('c')                             // 2
+	fn('z')                             // undefined
+	fn('hasOwnProperty')                // <#Function:hasOwnProperty>
+
+	// Object.toFunction can make a function out of ANY object
+	var node = document.createElement('div')         // <#HTMLDivElement:node>
+	node.id = 'testID'
+	node.style.color = '#EEE'
+	var divFunc = Object.toFunction(node)            // <#Function:divFunc>
+	var styleFunc = Object.toFunction(node.style)    // <#Function:styleFunc>
+	divFunc('id')                                    // "testID"
+	styleFunc('color')                               // "#EEE"
+
+
 Globals
 -------
 
@@ -469,8 +493,6 @@ TODO
 
 * example code for Function::memoize
 * document Function::traced
-* write tests for Object.toFunction
-* document Object.toFunction
 
 Known Issues
 ------------
