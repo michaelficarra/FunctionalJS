@@ -541,7 +541,6 @@ The global \_ function is a short, global reference to Function.\_.
 TODO
 ----
 
-* document Function::traced
 
 Known Issues
 ------------
