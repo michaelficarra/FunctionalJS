@@ -40,8 +40,8 @@ function and desiring no action.
 	Function.empty(null)    // undefined
 	Function.empty(true)    // undefined
 
-### Function.identity (value) ⇒ value
-Returns whatever value is given. When many values are given, returns an array
+### Function.identity (*args) ⇒ value
+Returns whatever it is given. When many arguments are given, returns an array
 containing those values. Useful when a function is expected and one would like
 to pass a constant value.
 
@@ -61,7 +61,7 @@ A function that returns its context (the `this` value).
 	Function.context.call(1,2)    // 1
 
 ### Function.lambda (value) ⇒ function() ⇒ value
-Returns a function that returns the value passed to `Function.lambda`.
+Returns a function that returns **value**.
 
 	var fn = Function.lambda("lambda")    // <#Function:fn>
 	fn()         // "lambda"
@@ -70,7 +70,7 @@ Returns a function that returns the value passed to `Function.lambda`.
 
 ### Function.pluck (property) ⇒ function(obj) ⇒ obj[property]
 Returns a function that returns the property of the passed object referenced by
-the argument passed to `Function.pluck`.
+**property**.
 
 	var arr = [[0],[1,2,3],[2,3]],
 		len = Function.pluck('length')
@@ -82,12 +82,11 @@ the argument passed to `Function.pluck`.
 	len({test:"abc",length:"def"})    // "def"
 
 ### Function.invoke (method, \*defaultArg) ⇒ function(obj)
-Returns a function that calls the method referenced by the first argument
-passed to `Function.invoke` of the passed object. Any additional arguments
-passed to `Function.invoke` will be used as the default arguments to be passed
-to the given method by the generated function. Any arguments passed to the
-generated function beyond the first will be passed to the function it calls
-instead of passing the default arguments.
+Returns a function that calls the method referenced by **method** of **obj**.
+Any additional arguments passed to `Function.invoke` will be used as the
+default arguments to be passed to the given method by the generated function.
+Any arguments passed to the generated function beyond the first will be passed
+to the function it calls instead of passing the default arguments.
 
 	var now   = Function.invoke('now'),
 		first = Function.invoke(0,'a'),
@@ -198,17 +197,17 @@ Instance Methods
 Returns the function upon which `toFunction` is called.
 
 ### wrap (fn, \[bind\]) ⇒ function(\*arg)
-Returns a function that calls the given function, passing to it this function
-instance as the first argument and the arguments given to the generated
-function as the second argument.
+Returns a function that calls **fn**, passing to it this function instance as
+the first argument and the arguments given to the generated function as the
+second argument.
 
-In other words, it wraps this Function instance in the given function. The
-arguments given to the generated function (the wrapper function) are the
-function upon which `wrap` is called and the arguments object from the
-generated function (as an array).
+In other words, it wraps this Function instance in **fn**. The arguments given
+to the generated function (the wrapper function) are the function upon which
+`wrap` is called and the arguments object from the generated function (as an
+array).
 
-An optional bind argument may be given, which binds the function upon which
-`wrap` is called to the given value.
+An optional second argument may be given, which binds the function upon which
+`wrap` is called to **bind**.
 
 Examples of usage taken from the source:
 
@@ -258,7 +257,7 @@ function.
 
 The internal memo collection can be initialized by passing one or more
 specially formatted objects containing a set of predetermined inputs and
-outputs as the first argument to `memoize`. The object must have a
+outputs as the first argument to `memoize` (**memos**). The object must have a
 `returnValue` property, and may have `context` and `args` properties. The
 `returnValue` property specifies the value returned by the generated function
 on a cache hit. The `context` property defines the context that must be
@@ -267,10 +266,59 @@ a cache hit. The context or args values, if undefined, will match any context
 or arguments.  The `args` value can either be a single value or an array
 containing zero or more values.
 
-	TODO: example code
+	var tFunction = Function.lambda(true),
+		defs = [
+			{args: 3, returnValue: false},
+			{args: [1,2], returnValue: false}
+		]
+		memoized = tFunction.memoize(defs);
+
+	memoized()       // true
+	memoized(1)      // true
+	memoized(1,2)    // false
+	memoized(2,1)    // true
+	memoized(2)      // true
+	memoized(3)      // false
+	tFunction(3)     // true
+
+### traced ([name, [opts]]) ⇒ function(\*args)
+Wraps the function upon which `trace` is called so that it logs useful
+information to the console (according to **opts**) whenever it is called. If a
+non-falsey value is given for **name**, it will be used in the console's group
+name. The available options for `traced` are:
+
+* Function.TRACE\_NONE
+  Will cause the traced function to only log that it was called.
+* Function.TRACE\_ALL
+  Will cause the traced function to act as if all options were enabled.
+* Function.TRACE\_ARGUMENTS
+  Will log the arguments passed to the traced function.
+* Function.TRACE\_CONTEXT
+  Will log the context (`this` value) of the traced function.
+* Function.TRACE\_RETURN
+  Will log the return value of the traced function.
+* Function.TRACE\_TIME
+  Will log the time it takes to run the function.
+* Function.TRACE\_STACK
+  Will log a stack trace.
+
+**opts** may be the bitwise OR of any of these options. **opts** defaults to
+`Function.TRACE_ARGUMENTS | Function.TRACE_RETURN`. 
+
+	var fn1 = function(){},
+		traced1 = fn1.traced('fn1');
+	traced1();
+
+	var fn2 = function funcTwo(){},
+		traced2 = fn2.traced(undefined,Function.TRACE_ALL);
+	traced2();
+
+	var fn3 = function(){},
+		traced3 = fn3.traced('fn3',Function.TRACE_RETURN | Function.TRACE_CONTEXT);
+	traced3();
 
 ### partial (\*args) ⇒ function(\*args)
-*Note: Function._ is defined as _ in the global scope*
+*Note: Function.\_ is defined as \_ in the global scope*
 
 Creates a partially applied function that has any passed arguments that are not
 `undefined` or `Function._` bound in the position they are given. The returned
@@ -389,9 +437,9 @@ be ignored in favor of the originally passed arguments.
 	Function.identity.saturate(2)(1,2)        // 2
 
 ### aritize (arity) ⇒ function(*args)
-If given a non-negative <arity>, a function that only accepts the first <arity>
-arguments is returned. If <arity> is less than zero, a function that accepts
-all but the last <arity> arguments is returned.
+If given a non-negative **arity**, a function that only accepts the first
+**arity** arguments is returned. If **arity** is less than zero, a function
+that accepts all but the last **arity** arguments is returned.
 
 	Function.identity.aritize(2)(0,1,2)       // [0,1]
 	Function.identity.aritize(0)(0,1)         // undefined
@@ -422,8 +470,11 @@ associated method call on the array, passing the function upon which the method
 was called as the first argument and any other arguments supplied as successive
 arguments.
 
-	var fn = function (a,b){ return a+b; }    // <#Function:fn>
-	fn.reduce([1,2,3,4],0)                    // 10
+	var sum = function (a,b){ return a+b; }    // <#Function:sum>
+	sum.reduce([1,2,3,4],0)                    // 10
+
+	var gtZero = function(_){ return _>0; }    // <#Function:gtZero>
+	gtZero.every([5,6,7,8])                    // true
 
 
 Array Instance Methods
@@ -461,8 +512,7 @@ Object Class Methods
 --------------------
 
 ### Object.toFunction (obj) ⇒ function(*args)
-Returns a function that returns the value of any property of the first argument
-to `Object.toFunction`.
+Returns a function that returns the value of any property of **obj**.
 
 	var obj = {a:0,b:1,c:2},            // {a:0,b:1,c:2}
 		fn = Object.toFunction(obj)     // <#Function:fn>
@@ -491,7 +541,6 @@ The global \_ function is a short, global reference to Function.\_.
 TODO
 ----
 
-* example code for Function::memoize
 * document Function::traced
 
 Known Issues
