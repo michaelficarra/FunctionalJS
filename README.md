@@ -541,6 +541,9 @@ The global \_ function is a short, global reference to Function.\_.
 TODO
 ----
 
+* document Function::overloadSetter and Function::overloadGetter
+* document Function::extend and Function::implement
+* document Function::bind
 
 Known Issues
 ------------

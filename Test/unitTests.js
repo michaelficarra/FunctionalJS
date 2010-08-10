@@ -406,9 +406,11 @@ describe('Function::traced',{
 	},
 	'properly handles functions with console output': function(){
 		(function(){
-			console.log('line 1',window);
-			console.log('line 2',function(){});
-			console.log('line 3');
+		 	if(typeof console !== 'undefined' && console !== null){
+				console.log('line 1',window);
+				console.log('line 2',function(){});
+				console.log('line 3');
+			}
 		}).traced('consoleFn',Function.TRACE_ALL)(1,2,3);
 	}
 });
