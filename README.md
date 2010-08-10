@@ -1,17 +1,17 @@
-FunctionTools
-=============
+FunctionalJS
+============
 
-FunctionTools (Functional MooTools) is a set of extensions to the `Function`
-class that allow for a more functional programming style.
+*FunctionalJS* is a set of extensions to the `Function` class that allow for a
+more functional programming style.
 
 
 How To Use
 ----------
 
-`FunctionTools` is not a single utility, but rather a set of related language
+*FunctionalJS* is not a single utility, but rather a set of related language
 enhancements that allow for a different programming style, so there is no
-specific use case for `FunctionTools` as a whole. However, the documentation
-for each of the methods provided by `FunctionTools` is listed below.
+specific use case for *FunctionalJS* as a whole. However, the documentation for
+each of the methods provided by *FunctionalJS* is listed below.
 
 
 Class Methods
