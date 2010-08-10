@@ -228,7 +228,7 @@ Examples of usage taken from the source:
 	});
 
 ### getOrigin ⇒ function(\*arg)
-*Note: All Function instance methods defined in FunctionTools that return a function use `wrap` to create it; you should, too!*
+*Note: All Function instance methods defined in FunctionalJS that return a function use `wrap` to create it; you should, too!*
 When called on functions passed through `wrap`, `getOrigin` returns the value
 returned when `getOrigin` is applied to the function on which `wrap` was
 originally called.  Otherwise, `getOrigin` acts like `Function.context` and

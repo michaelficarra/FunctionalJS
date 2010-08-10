@@ -4,9 +4,9 @@ var __hasProp = Object.prototype.hasOwnProperty;
 description: Extensions that allow a more functional programming style
 license: LGPL
 authors: ['Michael Ficarra']
-requires: [Core,Function,Class,Array]
+requires: []
 provides: [
-	FunctionTools, Function._, Function.empty, Function.identity,
+	FunctionalJS, Function._, Function.empty, Function.identity,
 	Function.context, Function.lambda, Function.pluck, Function.invoke,
 	Function.sequence, Function.concatenate, Function.concat, Function.compose,
 	Function.overload, Function.and, Function.or, Function.xor,

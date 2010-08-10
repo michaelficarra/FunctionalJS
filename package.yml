@@ -1,8 +1,8 @@
-name: FunctionTools
+name: FunctionalJS
 author: michael
 category: Native
 tags: [
-    FunctionTools, function, functional, functional programming,
+    FunctionalJS, function, functional, functional programming,
     # Function._
     underscore, _,
     # Function.empty
@@ -56,6 +56,6 @@ tags: [
     # Function::sort, Function::foldl, Function::foldr
     foreach, each, every, some, filter, map, reduce, reduceRight, sort, foldl, foldr
 ]
-current: 0.9
-docs: 'http://github.com/michaelficarra/FunctionTools/blob/master/README.md'
-demo: 'http://fiddle.jshell.net/Qn7Vu/1/show/light/'
+current: 1.0
+docs: 'http://github.com/michaelficarra/FunctionalJS/blob/master/README.md'
+demo: 'http://fiddle.jshell.net/Qn7Vu/2/show/light/'
