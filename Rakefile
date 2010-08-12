@@ -5,10 +5,10 @@ src_dir = root_dir+'Source/'
 build_dir = root_dir+'Build/'
 test_dir = root_dir+'Test/'
 
-in_file = src_dir+'/FunctionalJS.coffee'
-out_file = build_dir+'/FunctionalJS.js'
-min_file = build_dir+'/FunctionalJS.min.js'
-test_suite = test_dir+'/unitTests.htm'
+in_file = src_dir+'FunctionalJS.coffee'
+out_file = build_dir+File.basename(in_file).sub(/\.coffee$/,'.js')
+min_file = build_dir+'FunctionalJS.min.js'
+test_suite = test_dir+'unitTests.htm'
 
 coffee = nil
 build_options = %w[--no-wrap -c -l]
@@ -25,35 +25,35 @@ file 'coffee' do
 end
 
 desc 'continuously watch for changes to input file and compile'
-task :continuous, [:out_file,:in_file] => ['coffee',build_dir] do
+task :continuous, [:out_file,:in_file] => ['coffee',build_dir] do |task,args|
 	args.with_defaults :out_file=>out_file, :in_file=>in_file
-	out_file = args[:out_file].inspect
-	in_file = args[:in_file].inspect
-	sh "#{coffee} #{build_options.join ' '} -w -o #{out_file} #{in_file}"
+	args[:out_file] = File.dirname(args[:out_file]).inspect
+	args[:in_file] = args[:in_file].inspect
+	sh "#{coffee} #{build_options.join ' '} -w -o #{args[:out_file]} #{args[:in_file]}"
 end
 
 desc 'compile coffeescript to javascript'
-task :build, [:out_file,:in_file] => ['coffee',build_dir] do
+task :build, [:out_file,:in_file] => ['coffee',build_dir] do |task,args|
 	args.with_defaults :out_file=>out_file, :in_file=>in_file
-	out_file = args[:out_file].inspect
-	in_file = args[:in_file].inspect
-	sh "#{coffee} #{build_options.join ' '} -o #{out_file} #{in_file}"
+	args[:out_file] = File.dirname(args[:out_file]).inspect
+	args[:in_file] = args[:in_file].inspect
+	sh "#{coffee} #{build_options.join ' '} -o #{args[:out_file]} #{args[:in_file]}"
 end
 
 desc 'run generated JS through google closure compiler'
-task :minify, [:file] do
+task :minify, [:out_file,:in_file] do |task,args|
 	require 'json'
 	require 'net/http'
 	require 'uri'
 	require 'cgi'
 
-	args.with_defaults :file=>out_file
-	throw Exception.new('File selected for minification does not exist') unless File.exists? args[:file]
-	source = File.read args[:file]
+	args.with_defaults :out_file=>min_file, :in_file=>out_file
+	throw Exception.new('File selected for minification does not exist: '+out_file.to_s) unless File.exists? args[:in_file]
+	source = File.read args[:in_file]
 
 	uri = URI.parse('http://closure-compiler.appspot.com/compile')
 	options = [
-		'json_code='+CGI.escape(source),
+		'js_code='+CGI.escape(source),
 		'output_format=json',
 		'compilation_level=ADVANCED_OPTIMIZATIONS',
 		'output_info=compiled_code',
@@ -63,14 +63,18 @@ task :minify, [:file] do
 		'warning_level=default',
 	].join('&')
 
-	response = Net::HTTP.post_form uri, options
-	response.error! unless response === Net::HTTPSuccess and response.body_permitted?
+	response = Net::HTTP.new(uri.host, uri.port).start { |http| http.post uri.path, options }
+	response.error! unless response.code =~ /2\d\d/
 
 	json = JSON.parse response.body.to_s
+	stats = json['statistics']
+	ratio = stats['compressedSize'].to_i / stats['originalSize'].to_i
+	gzipRation = stats['compressedGzipSize'].to_i / stats['originalGzipSize'].to_i
+	File.new(args[:out_file],'w').write json['compiledCode']
 end
 
 desc 'open the test suite in the default web browser'
-task :test, [:file] do
+task :test, [:file] do |task,args|
 	args.with_defaults :file=>test_suite
 	sh "htmlview #{args[:file].inspect}"
 end
