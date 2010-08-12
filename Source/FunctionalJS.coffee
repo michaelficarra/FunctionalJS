@@ -37,7 +37,7 @@ provides: [
 	]
 		# calculate powers of two to assign to the constants. this allows
 		# any combination of constants to be defined as a single value
-		`Function.TRACE_ALL |= Function[constant] = 1 << n`
+		Function.TRACE_ALL |= Function[constant] = 1 << n
 
 
 	unless Function::overloadSetter?
@@ -263,9 +263,9 @@ provides: [
 			trace    = if hasConsole and console.trace?    then console.trace.bind console    else Function.empty
 			(name,opts) ->
 				# define default options to be used if none are specified
-				opts = if opts? then opts else Function.TRACE_ARGUMENTS | Function.TRACE_RETURN
+				opts ?= Function.TRACE_ARGUMENTS | Function.TRACE_RETURN
 				# try to figure out the name of the function if none is specified
-				name = if name? then name else @getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1]
+				name ?= @getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1]
 				if name is "" then name = undefined
 				if name? then name = if name.toString then name.toString() else Object::toString.call name
 				@wrap (fn,args) ->
