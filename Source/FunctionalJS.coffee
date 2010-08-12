@@ -74,8 +74,8 @@ provides: [
 		Function::implement = ((name,method) ->
 			unless @prototype[name]?
 				@prototype[name] = method
-				@constructor.extend name, (context) ->
-					method.apply context, Array::slice.call(arguments,1)
+				@constructor.extend name, (context, args...) ->
+					method.apply context, args
 		).overloadSetter()
 
 
@@ -177,8 +177,8 @@ provides: [
 	# instance methods
 	Function.implement {
 		toFunction: -> @
-		bind: (scope) ->
-			self = @curry Array::slice.call(arguments,1)
+		bind: (scope, args...) ->
+			self = @curry args
 			-> self.apply scope, arguments
 		wrap: (fn,bind) ->
 			self = @
@@ -194,14 +194,14 @@ provides: [
 			origin
 		memoize: (->
 			typeOf = global.typeOf or (_) ->
-				return 'undefined' if _ is undefined
-				return 'null' if _ is null
+				return 'undefined' if arguments.length and _ is undefined
+				return null unless _?
 				switch _.constructor
-					when Array then return 'array'
-					when RegExp then return 'regexp'
-					when Object then return 'object'
+					when [].constructor then return 'array'
+					when /(?:)/.constructor then return 'regexp'
+					when {}.constructor then return 'object'
 				if !_.nodeName? and typeof _.length is 'number'
-					return 'arguments' if _.callee?
+					return 'arguments' if _.hasOwnProperty 'callee'
 					return 'collection' if _.item?
 				typeof item
 			arrayCoerce = Array.from or (_) ->
@@ -223,8 +223,8 @@ provides: [
 					when 'array','collection','arguments'
 						a.length is b.length and every a, (a_i,i) -> equalityCheck(a_i,b[i])
 					else
-						`try { a = a.valueOf() } catch(e) {}`
-						`try { b = b.valueOf() } catch(e) {}`
+						a = a?.valueOf()
+						b = b?.valueOf()
 						# taken from google caja
 						if a is b # 0 is not -0
 							a isnt 0 or 1/a is 1/b
@@ -277,10 +277,7 @@ provides: [
 						if opts & Function.TRACE_CONTEXT then log ' Context: ', @
 						if opts & Function.TRACE_TIME then time fn
 						group 'Console Output'
-					try
-						ret = fn.apply @, args
-					catch e
-						exception = e
+					try ret = fn.apply @, args catch e then exception = e
 					unless opts is Function.TRACE_NONE
 						groupEnd()
 						if opts & Function.TRACE_TIME then timeEnd fn

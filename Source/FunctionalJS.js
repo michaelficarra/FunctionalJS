@@ -1,4 +1,4 @@
-var __hasProp = Object.prototype.hasOwnProperty;
+var __hasProp = Object.prototype.hasOwnProperty, __slice = Array.prototype.slice;
 /*
 ---
 description: Extensions that allow a more functional programming style
@@ -23,7 +23,7 @@ provides: [
 */
 (function(global, undefined) {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, bools, constant, fn, n, opName, toFunction;
-  if (!(typeof global !== "undefined" && global !== null)) {
+  if (!((typeof global !== "undefined" && global !== null))) {
     global = {};
   }
   Function.TRACE_ALL = (Function.TRACE_NONE = 0);
@@ -37,7 +37,7 @@ provides: [
     self = this;
     return function(a, b) {
       var _d, _e, k;
-      if (!(typeof a !== "undefined" && a !== null)) {
+      if (!((typeof a !== "undefined" && a !== null))) {
         return this;
       }
       if (forceObject || typeof a !== 'string') {
@@ -87,7 +87,9 @@ provides: [
     if (!((typeof (_g = this.prototype[name]) !== "undefined" && _g !== null))) {
       this.prototype[name] = method;
       return this.constructor.extend(name, function(context) {
-        return method.apply(context, Array.prototype.slice.call(arguments, 1));
+        var args;
+        args = __slice.call(arguments, 1);
+        return method.apply(context, args);
       });
     }
   }).overloadSetter()) : null;
@@ -95,11 +97,11 @@ provides: [
     _: function(_) {
       var _g, args, caller;
       caller = arguments.callee.caller || arguments.caller;
-      if (!(typeof caller !== "undefined" && caller !== null)) {
+      if (!((typeof caller !== "undefined" && caller !== null))) {
         return null;
       }
       args = caller.arguments;
-      if (!(typeof _ !== "undefined" && _ !== null)) {
+      if (!((typeof _ !== "undefined" && _ !== null))) {
         args._ = ((typeof (_g = args._) !== "undefined" && _g !== null) ? args._ += 1 : 0);
       }
       return args[(typeof _ !== "undefined" && _ !== null) ? _ : args._];
@@ -227,7 +229,7 @@ provides: [
               var recurse;
               recurse = function(functions, args) {
                 var first;
-                if (functions.length === 1) {
+                if ((functions.length === 1)) {
                   return !!functions[0].apply(this, args);
                 } else {
                   first = functions[0].apply(this, args);
@@ -249,8 +251,9 @@ provides: [
       return this;
     },
     bind: function(scope) {
-      var self;
-      self = this.curry(Array.prototype.slice.call(arguments, 1));
+      var args, self;
+      args = __slice.call(arguments, 1);
+      self = this.curry(args);
       return function() {
         return self.apply(scope, arguments);
       };
@@ -277,32 +280,32 @@ provides: [
     memoize: (function() {
       var arrayCoerce, equalityCheck, every, indexOf, typeOf;
       typeOf = global.typeOf || function(_) {
-        var _i, _j, _k, _l;
-        if (_ === undefined) {
+        var _i, _j, _k;
+        if (arguments.length && _ === undefined) {
           return 'undefined';
         }
-        if (_ === null) {
-          return 'null';
+        if (!((typeof _ !== "undefined" && _ !== null))) {
+          return null;
         }
-        if ((_i = _.constructor) === Array) {
+        if ((_i = _.constructor) === [].constructor) {
           return 'array';
-        } else if (_i === RegExp) {
+        } else if (_i === /(?:)/.constructor) {
           return 'regexp';
-        } else if (_i === Object) {
+        } else if (_i === ({}).constructor) {
           return 'object';
         }
-        if (!(typeof (_l = _.nodeName) !== "undefined" && _l !== null) && typeof _.length === 'number') {
-          if ((typeof (_j = _.callee) !== "undefined" && _j !== null)) {
+        if (!(typeof (_k = _.nodeName) !== "undefined" && _k !== null) && typeof _.length === 'number') {
+          if (_.hasOwnProperty('callee')) {
             return 'arguments';
           }
-          if ((typeof (_k = _.item) !== "undefined" && _k !== null)) {
+          if ((typeof (_j = _.item) !== "undefined" && _j !== null)) {
             return 'collection';
           }
         }
         return typeof item;
       };
       arrayCoerce = Array.from || function(_) {
-        if (!(typeof _ !== "undefined" && _ !== null)) {
+        if (!((typeof _ !== "undefined" && _ !== null))) {
           return [];
         }
         return (typeof _ !== "undefined" && _ !== null) && typeof _.length === 'number' && _.constructor !== Function && typeof _ !== 'string' ? typeOf(_) === 'array' ? _ : Array.prototype.slice.call(_) : [_];
@@ -333,8 +336,8 @@ provides: [
             return equalityCheck(a_i, b[i]);
           });
         } else {
-          try { a = a.valueOf() } catch(e) {};
-          try { b = b.valueOf() } catch(e) {};
+          a = typeof a === "undefined" || a == undefined ? undefined : a.valueOf();
+          b = typeof b === "undefined" || b == undefined ? undefined : b.valueOf();
           return a === b ? a !== 0 || 1 / a === 1 / b : a !== a && b !== b;
         }
       };
@@ -357,7 +360,7 @@ provides: [
         _j = userMemos;
         for (_i = 0, _k = _j.length; _i < _k; _i++) {
           memo = _j[_i];
-          if (!(typeof memo !== "undefined" && memo !== null)) {
+          if (!((typeof memo !== "undefined" && memo !== null))) {
             continue;
           }
           userKey = {
