@@ -545,6 +545,7 @@ TODO
 * document Function::overloadSetter and Function::overloadGetter
 * document Function::extend and Function::implement
 * document Function::bind
+* update source headers, package.yml, and externs.js to reflect new API additions
 
 Known Issues
 ------------

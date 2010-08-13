@@ -24,6 +24,7 @@ provides: [
 ((global,undefined) ->
 
 	global = {} unless global?
+	Function = (->).constructor
 
 
 	# constants for Function::traced
