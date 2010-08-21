@@ -109,16 +109,16 @@ provides: [
 					functions = arguments
 					((idx) -> (->
 						idx %= functions.length
-						functions[idx++].apply(@,arguments)
+						functions[idx++].apply @, arguments
 					)).call @, 0
 		concatenate: ->
 			functions = arguments
 			->
 				for fn in functions
-					result = fn.apply(@,arguments)
+					result = fn.apply @, arguments
 				result
 		compose: ->
-			functions = Array::slice.call(arguments)
+			functions = Array::slice.call arguments
 			->
 				lastReturn = arguments
 				for fn, i in functions.reverse()
@@ -170,7 +170,7 @@ provides: [
 								first = functions[0].apply @, args
 								# short-circuit `and` and `or`
 								return !!first if (op is bools.and and !first) or (op is bools.or and first)
-								op first, recurse.call(@,functions.slice(1),args)
+								op first, recurse.call(@,functions[1..],args)
 						recurse.call @, functions, arguments
 					))(op)
 
@@ -335,7 +335,7 @@ provides: [
 				fn.apply @, args
 		aritize: (arity) ->
 			@wrap (fn,args) ->
-				fn.apply @, args.slice(0,arity)
+				fn.apply @, args[0...arity]
 		getArity: -> @arity or @length or @getArgs().length
 	}
 

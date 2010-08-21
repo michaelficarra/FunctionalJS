@@ -541,7 +541,6 @@ The global \_ function is a short, global reference to Function.\_.
 TODO
 ----
 
-* make Cakefile to compile and minify
 * document Function::overloadSetter and Function::overloadGetter
 * document Function::extend and Function::implement
 * document Function::bind
