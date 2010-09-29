@@ -81,7 +81,7 @@ provides: [
 
 
 	# class methods
-	Function.extend {
+	Function.extend
 		_: (_) ->
 			caller = arguments.callee.caller or arguments.caller
 			return unless caller?
@@ -96,10 +96,8 @@ provides: [
 		context: -> @
 		lambda: (_) -> (-> _)
 		pluck: (property) -> (obj) -> obj[property]
-		invoke: (method) ->
-			defaultArgs = Array::slice.call arguments, 1
-			(obj) ->
-				args = Array::slice.call arguments, 1
+		invoke: (method,defaultArgs...) ->
+			(obj,args...) ->
 				obj[method].apply obj, (if args.length then args else defaultArgs)
 		sequence: ->
 			switch arguments.length
@@ -117,8 +115,7 @@ provides: [
 				for fn in functions
 					result = fn.apply @, arguments
 				result
-		compose: ->
-			functions = Array::slice.call arguments
+		compose: (functions...) ->
 			->
 				lastReturn = arguments
 				for fn, i in functions.reverse()
@@ -136,7 +133,6 @@ provides: [
 				fn = funcTable[arguments.length]
 				return undefined unless fn? and fn instanceof Function
 				fn.apply @, arguments
-	}
 
 	Function.extend 'concat', Function.concatenate
 
@@ -176,15 +172,14 @@ provides: [
 
 
 	# instance methods
-	Function.implement {
+	Function.implement
 		toFunction: -> @
 		bind: (scope, args...) ->
 			self = @curry args
 			-> self.apply scope, arguments
 		wrap: (fn,bind) ->
 			self = @
-			wrapper = ->
-				args = Array::slice.call arguments
+			wrapper = (args...) ->
 				fn.call @, (if bind? then self.bind bind else self), args
 			wrapper._origin = @
 			wrapper
@@ -288,8 +283,7 @@ provides: [
 					if exception then throw exception
 					ret
 		)()
-		partial: ->
-			partialArgs = Array::slice.call arguments
+		partial: (partialArgs...) ->
 			@wrap (original,passedArgs) ->
 				collectedArgs = []
 				for arg in partialArgs
@@ -297,12 +291,10 @@ provides: [
 					# argument given during this call, else use the predefiend argument
 					collectedArgs.push (if !arg? or arg is Function._ then passedArgs.shift() else arg)
 				original.apply @, collectedArgs.concat(passedArgs)
-		curry: ->
-			curriedArgs = Array::slice.call arguments
+		curry: (curriedArgs...) ->
 			@wrap (original,passedArgs) ->
 				original.apply @, curriedArgs.concat(passedArgs)
-		rcurry: ->
-			curriedArgs = Array::slice.call arguments
+		rcurry: (curriedArgs...) ->
 			@wrap (original,passedArgs) ->
 				original.apply @, passedArgs.concat(curriedArgs)
 		not: ->
@@ -337,34 +329,29 @@ provides: [
 			@wrap (fn,args) ->
 				fn.apply @, args[0...arity]
 		getArity: -> @arity or @length or @getArgs().length
-	}
 
 	# define Function::getArgs after Function::memoize is committed
 	# to allow for auto-memoization
-	Function.implement {
+	Function.implement
 		getArgs: (->
 			fn = @getOrigin()
 			args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/)
 			args.filter((_) -> _ isnt "")
 		).memoize()
-	}
 
 
 	# implement array methods
 	for fnStr in ['forEach','each','every','some','filter','map','reduce','reduceRight','sort']
 		continue unless Array.prototype[fnStr]?
-		fn = ((fnStr) -> (->
-			args = Array::slice.call arguments
-			arr = args.shift()
-			arr[fnStr].apply arr, [@].concat(args)
-		))(fnStr)
+		fn = ((fnStr) ->
+			(arr,args...) -> arr[fnStr].apply arr, [@].concat(args)
+		)(fnStr)
 		fn._origin = Array.prototype[fnStr]
 		Function.implement fnStr, fn
 
-	Function.implement {
+	Function.implement
 		foldl: Function::reduce
 		foldr: Function::reduceRight
-	}
 
 
 	# Array::toFunction, Hash::toFunction, Object.toFunction
