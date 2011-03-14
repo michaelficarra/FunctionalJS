@@ -44,7 +44,7 @@ provides: [
 	unless Function::overloadSetter?
 		Function::overloadSetter = (forceObject) ->
 			self = @
-			(a,b) ->
+			(a, b) ->
 				return @ unless a?
 				if forceObject or typeof a isnt 'string'
 					for k of a
@@ -67,7 +67,7 @@ provides: [
 				result
 
 	unless Function::extend?
-		Function::extend = ((name,method) ->
+		Function::extend = ((name, method) ->
 			@[name] =  method unless @[name]?
 		).overloadSetter()
 
@@ -96,8 +96,8 @@ provides: [
 		context: -> @
 		lambda: (_) -> (-> _)
 		pluck: (property) -> (obj) -> obj[property]
-		invoke: (method,defaultArgs...) ->
-			(obj,args...) ->
+		invoke: (method, defaultArgs...) ->
+			(obj, args...) ->
 				obj[method].apply obj, (if args.length then args else defaultArgs)
 		sequence: ->
 			switch arguments.length
@@ -137,9 +137,9 @@ provides: [
 	Function.extend 'concat', Function.concatenate
 
 	bools =
-		xor: (a,b) -> !!(!a ^ !b)
-		and: (a,b) -> !!(a and b)
-		or: (a,b) -> !!(a or b)
+		xor: (a, b) -> !!(!a ^ !b)
+		and: (a, b) -> !!(a and b)
+		or: (a, b) -> !!(a or b)
 
 	# boolean function logic: Function.and, Function.or, Function.xor
 	for opName, op of bools
@@ -158,14 +158,14 @@ provides: [
 					# generate a function that calls each given function consecutively,
 					# applying the chosen operator to their return values at each step
 					functions = Array::slice.call arguments
-					recurse = (functions,args) ->
+					recurse = (functions, args) ->
 						if(functions.length is 1)
 							return !!functions[0].apply @, args
 						else
 							first = functions[0].apply @, args
 							# short-circuit `and` and `or`
 							return !!first if (op is bools.and and !first) or (op is bools.or and first)
-							op first, recurse.call(@,functions[1..],args)
+							op first, recurse.call @, functions[1..], args
 					-> recurse.call @, functions, arguments
 
 
@@ -175,7 +175,7 @@ provides: [
 		bind: (scope, args...) ->
 			self = @curry args
 			-> self.apply scope, arguments
-		wrap: (fn,bind) ->
+		wrap: (fn, bind) ->
 			self = @
 			wrapper = (args...) ->
 				fn.call @, (if bind? then self.bind bind else self), args
@@ -187,28 +187,29 @@ provides: [
 				origin = origin._origin
 			origin
 		memoize: (->
-			arrayCoerce = Array.from or (_) ->
+			arrayCoerce = (_) ->
 				return [] unless _?
-				if _? and typeof _.length is 'number' and _.constructor isnt Function and typeof _ isnt 'string'
-					if Object::toString.call(a) is '[object Array]' then _ else Array::slice.call(_)
+				str = Object::toString.call _
+				if _? and typeof _.length is 'number' and str isnt '[object Function]' and typeof _ isnt 'string'
+					if str is '[object Array]' then _ else Array::slice.call _
 				else [_]
-			every = Array.every or (iterable,fn) ->
-				for el, i in iterable
-					return false unless fn.call(@, el, i, iterable)
+			every = Array::every or (fn) ->
+				for el, i in @
+					return false unless fn.call @, el, i, iterable
 				true
 			# used to check if arguments/contexts are functionally equivalent
-			equalityCheck = (a,b) ->
+			equalityCheck = (a, b) ->
 				return false unless typeof a is typeof b
 				if Object::toString.call(a) is '[object Array]'
-					a.length is b.length and every a, (a_i,i) -> equalityCheck(a_i,b[i])
+					a.length is b.length and every.call a, (a_i, i) -> equalityCheck a_i, b[i]
 				else
 					# egal function, see http://wiki.ecmascript.org/doku.php?id=harmony:egal
 					if a is b # 0 is not -0
 						a isnt 0 or 1/a is 1/b
 					else # NaN is NaN
 						a isnt a and b isnt b
-			indexOf = (iterable,key) ->
-				for el, i in iterable
+			indexOf = (key) ->
+				for el, i in @
 					if (!el.args? or equalityCheck el.args, key.args) and
 					(!el.context? or equalityCheck el.context, key.context)
 						return i
@@ -222,9 +223,9 @@ provides: [
 					continue unless memo?
 					userKey = context: memo.context, args: arrayCoerce memo.args
 					memos[keys.push(userKey)-1] = memo.returnValue
-				@wrap (original,args) ->
+				@wrap (original, args) ->
 					key = context: @, args: args
-					idx = indexOf(keys,key)
+					idx = indexOf.call keys, key
 					return memos[idx] if idx > -1
 					memos[keys.push(key)-1] = original.apply @, args
 		)()
@@ -238,15 +239,15 @@ provides: [
 			time     = if hasConsole and console.time?     then console.time.bind console     else Function.empty
 			timeEnd  = if hasConsole and console.timeEnd?  then console.timeEnd.bind console  else Function.empty
 			trace    = if hasConsole and console.trace?    then console.trace.bind console    else Function.empty
-			(name,opts) ->
+			(name, opts) ->
 				# define default options to be used if none are specified
 				opts ?= Function.TRACE_ARGUMENTS | Function.TRACE_RETURN
 				# try to figure out the name of the function if none is specified
 				name ?= @getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1]
 				if name is "" then name = undefined
 				if name? then name = if name.toString then name.toString() else Object::toString.call name
-				@wrap (fn,args) ->
-					title = 'Called '+(if name? then '"'+name.replace(/"/g,'\\"')+'"' else 'anonymous function')
+				@wrap (fn, args) ->
+					title = 'Called '+(if name? then '"'+name.replace(/"/g, '\\"')+'"' else 'anonymous function')
 					if opts is Function.TRACE_NONE then log title+' (', fn, ')'
 					unless opts is Function.TRACE_NONE
 						group title+' (', fn, ')'
@@ -265,32 +266,32 @@ provides: [
 					ret
 		)()
 		partial: (partialArgs...) ->
-			@wrap (original,passedArgs) ->
+			@wrap (original, passedArgs) ->
 				collectedArgs = []
 				for arg in partialArgs
 					# if the argument is one of our wildcards, replace it with the next
 					# argument given during this call, else use the predefiend argument
 					collectedArgs.push (if !arg? or arg is Function._ then passedArgs.shift() else arg)
-				original.apply @, collectedArgs.concat(passedArgs)
+				original.apply @, collectedArgs.concat passedArgs
 		curry: (curriedArgs...) ->
-			@wrap (original,passedArgs) ->
-				original.apply @, curriedArgs.concat(passedArgs)
+			@wrap (original, passedArgs) ->
+				original.apply @, curriedArgs.concat passedArgs
 		rcurry: (curriedArgs...) ->
-			@wrap (original,passedArgs) ->
-				original.apply @, passedArgs.concat(curriedArgs)
+			@wrap (original, passedArgs) ->
+				original.apply @, passedArgs.concat curriedArgs
 		not: ->
 			# if arguments are given, immediately call the notted function
 			return @not().apply @, arguments if arguments.length
-			@wrap((fn,args) -> !fn.apply(@,args))
+			@wrap (fn, args) -> !fn.apply @, args
 		prepend: ->
 			functions = arguments
-			@wrap (self,args) ->
+			@wrap (self, args) ->
 				for fn in functions
 					fn.apply @, args
 				self.apply @, args
 		append: ->
 			functions = arguments
-			@wrap (self,args) ->
+			@wrap (self, args) ->
 				ret = self.apply @, args
 				for fn in functions
 					fn.apply @, args
@@ -298,7 +299,7 @@ provides: [
 		overload: (funcTable) ->
 			if !arguments.length or funcTable instanceof Function
 				others = Array::slice.call arguments
-				Function.overload.apply null, others.concat(@)
+				Function.overload.apply null, others.concat @
 			else
 				funcTable[@getArity()] = @
 				Function.overload funcTable
@@ -307,7 +308,7 @@ provides: [
 			@wrap (fn) ->
 				fn.apply @, args
 		aritize: (arity) ->
-			@wrap (fn,args) ->
+			@wrap (fn, args) ->
 				fn.apply @, args[0...arity]
 		getArity: -> @arity or @length or @getArgs().length
 
@@ -317,17 +318,16 @@ provides: [
 		getArgs: (->
 			fn = @getOrigin()
 			args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/)
-			args.filter((_) -> _ isnt "")
+			args.filter (_) -> _ isnt ""
 		).memoize()
 
 
 	# implement array methods
 	for fnStr in ['forEach','each','every','some','filter','map','reduce','reduceRight','sort']
-		continue unless Array.prototype[fnStr]?
-		fn = ((fnStr) ->
-			(arr,args...) -> arr[fnStr].apply arr, [@].concat(args)
-		)(fnStr)
-		fn._origin = Array.prototype[fnStr]
+		continue unless Array::[fnStr]?
+		fn = do (fnStr) ->
+			(arr, args...) -> arr[fnStr].apply arr, [@].concat args
+		fn._origin = Array::[fnStr]
 		Function.implement fnStr, fn
 
 	Function.implement
@@ -341,7 +341,7 @@ provides: [
 		(index) -> self[index]
 	Array.implement 'toFunction', toFunction
 	if Hash? then Hash.implement 'toFunction', toFunction
-	Object.extend 'toFunction', (obj) -> toFunction.call(obj)
+	Object.extend 'toFunction', (obj) -> toFunction.call obj
 
 
 	# add Function._ to the global scope
