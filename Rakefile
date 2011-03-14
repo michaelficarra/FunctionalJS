@@ -12,7 +12,7 @@ default_min_file = build_dir+'FunctionalJS.min.js'
 default_test_suite = test_dir+'unitTests.htm'
 
 coffee = nil
-build_options = %w[--no-wrap -c -l]
+build_options = %w[--bare -c -l]
 
 task :default => [:build,:minify]
 

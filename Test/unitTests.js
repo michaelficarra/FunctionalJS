@@ -488,11 +488,15 @@ describe('Function::memoize',{
 		var fn = function(){ shared = true; }.memoize();
 		shared = false;
 		value_of(shared).should_be_false();
-		fn(1,"str",/regex/);
+		var regex = /regex/;
+		fn(1,"str",regex);
 		value_of(shared).should_be_true();
 		shared = false;
-		fn(1,"str",/regex/);
+		fn(1,"str",regex);
 		value_of(shared).should_be_false();
+		shared = false;
+		fn(1,"str",/regex/);
+		value_of(shared).should_be_true();
 		shared = false;
 		fn(1);
 		value_of(shared).should_be_true();
@@ -545,7 +549,7 @@ describe('Function::memoize',{
 			fn2 = function(){ return true; }.memoize(memos);
 		value_of(fn2(NaN)).should_be(memos.returnValue);
 	},
-	'memoized function treat 0 differently than -0': function(){
+	'memoized functions treat 0 differently than -0': function(){
 		var n = 0,
 			fn = function(){ return n++; }.memoize();
 		value_of(fn(0)).should_not_be(fn(-0));
@@ -555,7 +559,8 @@ describe('Function::memoize',{
 	'all native data types are memoized correctly': function(){
 		var types = [0, 2, NaN, Infinity, -Infinity, -0,
 				true, false,"string", undefined, null,
-				[], {}, {a:0,b:1}, new Date(), /regex/],
+				[], {}, {a:0,b:1}, new Date(), /regex/,
+				new Number(1), new RegExp('/'), new Array(1)],
 			fn = function(_){ return [this,_,false]; },
 			memos = [];
 		(3).times(function(){ types.push(Array.clone(types)); });

@@ -21,7 +21,7 @@ provides: [
 ...
 ###
 
-((global,undefined) ->
+((global) ->
 
 	global = {} unless global?
 	Function = (->).constructor
@@ -143,7 +143,7 @@ provides: [
 
 	# boolean function logic: Function.and, Function.or, Function.xor
 	for opName, op of bools
-		Function.extend opName, ->
+		Function.extend opName, do (op)-> ->
 			switch arguments.length
 				# based on the number of functions given...
 				when 0
@@ -158,17 +158,15 @@ provides: [
 					# generate a function that calls each given function consecutively,
 					# applying the chosen operator to their return values at each step
 					functions = Array::slice.call arguments
-					((op)-> (->
-						recurse = (functions,args) ->
-							if(functions.length is 1)
-								return !!functions[0].apply @, args
-							else
-								first = functions[0].apply @, args
-								# short-circuit `and` and `or`
-								return !!first if (op is bools.and and !first) or (op is bools.or and first)
-								op first, recurse.call(@,functions[1..],args)
-						recurse.call @, functions, arguments
-					))(op)
+					recurse = (functions,args) ->
+						if(functions.length is 1)
+							return !!functions[0].apply @, args
+						else
+							first = functions[0].apply @, args
+							# short-circuit `and` and `or`
+							return !!first if (op is bools.and and !first) or (op is bools.or and first)
+							op first, recurse.call(@,functions[1..],args)
+					-> recurse.call @, functions, arguments
 
 
 	# instance methods
@@ -189,21 +187,10 @@ provides: [
 				origin = origin._origin
 			origin
 		memoize: (->
-			typeOf = global.typeOf or (_) ->
-				return 'undefined' if arguments.length and _ is undefined
-				return null unless _?
-				switch _.constructor
-					when [].constructor then return 'array'
-					when /(?:)/.constructor then return 'regexp'
-					when {}.constructor then return 'object'
-				if !_.nodeName? and typeof _.length is 'number'
-					return 'arguments' if _.hasOwnProperty 'callee'
-					return 'collection' if _.item?
-				typeof item
 			arrayCoerce = Array.from or (_) ->
 				return [] unless _?
 				if _? and typeof _.length is 'number' and _.constructor isnt Function and typeof _ isnt 'string'
-					if typeOf(_) is 'array' then _ else Array::slice.call(_)
+					if Object::toString.call(a) is '[object Array]' then _ else Array::slice.call(_)
 				else [_]
 			every = Array.every or (iterable,fn) ->
 				for el, i in iterable
@@ -211,21 +198,15 @@ provides: [
 				true
 			# used to check if arguments/contexts are functionally equivalent
 			equalityCheck = (a,b) ->
-				type = typeOf a
-				return false unless type is typeOf b
-				switch type
-					when 'object' then a is b
-					when 'regexp' then a.toString() is b.toString()
-					when 'array','collection','arguments'
-						a.length is b.length and every a, (a_i,i) -> equalityCheck(a_i,b[i])
-					else
-						a = a?.valueOf()
-						b = b?.valueOf()
-						# taken from google caja
-						if a is b # 0 is not -0
-							a isnt 0 or 1/a is 1/b
-						else # NaN is NaN
-							a isnt a and b isnt b
+				return false unless typeof a is typeof b
+				if Object::toString.call(a) is '[object Array]'
+					a.length is b.length and every a, (a_i,i) -> equalityCheck(a_i,b[i])
+				else
+					# egal function, see http://wiki.ecmascript.org/doku.php?id=harmony:egal
+					if a is b # 0 is not -0
+						a isnt 0 or 1/a is 1/b
+					else # NaN is NaN
+						a isnt a and b isnt b
 			indexOf = (iterable,key) ->
 				for el, i in iterable
 					if (!el.args? or equalityCheck el.args, key.args) and
