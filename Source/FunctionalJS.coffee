@@ -244,7 +244,7 @@ provides: [
 				opts ?= Function.TRACE_ARGUMENTS | Function.TRACE_RETURN
 				# try to figure out the name of the function if none is specified
 				name ?= @getOrigin().toString().match(/^function\s*([^\s\(]*)\(/)[1]
-				if name is "" then name = undefined
+				if name is '' then name = undefined
 				if name? then name = if name.toString then name.toString() else Object::toString.call name
 				@wrap (fn, args) ->
 					title = 'Called '+(if name? then '"'+name.replace(/"/g, '\\"')+'"' else 'anonymous function')
@@ -318,7 +318,7 @@ provides: [
 		getArgs: (->
 			fn = @getOrigin()
 			args = fn.toString().match(/^function\s*[^\s\(]*\((.*?)\)/)[1].split(/\s*,\s*/)
-			args.filter (_) -> _ isnt ""
+			args.filter (_) -> _ isnt ''
 		).memoize()
 
 
@@ -340,7 +340,6 @@ provides: [
 		self = @
 		(index) -> self[index]
 	Array.implement 'toFunction', toFunction
-	if Hash? then Hash.implement 'toFunction', toFunction
 	Object.extend 'toFunction', (obj) -> toFunction.call obj
 
 

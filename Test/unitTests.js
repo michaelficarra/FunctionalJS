@@ -480,15 +480,13 @@ describe('Function::getOrigin',{
 
 describe('Function::memoize',{
 	before: function(){
-		shared = false;
 		powerOfTwo = function(n){ return n>0 && !(n&(n-1)); };
 		memoizeMe = function(n){ shared=true; if(n) return powerOfTwo(n); return false; }
 	},
 	'return values are cached': function(){
-		var fn = function(){ shared = true; }.memoize();
-		shared = false;
-		value_of(shared).should_be_false();
-		var regex = /regex/;
+		var shared = false,
+			regex = /regex/,
+			fn = function(){ shared = true; }.memoize();
 		fn(1,"str",regex);
 		value_of(shared).should_be_true();
 		shared = false;
@@ -896,18 +894,6 @@ describe('toFunction methods',{
 		value_of(fn()).should_be_undefined();
 		value_of(fn(-1)).should_be_undefined();
 		value_of(fn(4)).should_be_undefined();
-	},
-	'Hash::toFunction': function(){
-		if(!Hash) return;
-		var hash = new Hash({0:3,'str':17,3:'str',undefined:1});
-		var fn = hash.toFunction();
-		value_of(fn(0)).should_be(hash[0]);
-		value_of(fn(0,1)).should_be(hash[0]);
-		value_of(fn('str')).should_be(hash['str']);
-		value_of(fn(3)).should_be(hash[3]);
-		value_of(fn()).should_be(hash[undefined]);
-		value_of(fn(1)).should_be_undefined();
-		value_of(fn(1,0)).should_be_undefined();
 	},
 	'Object.toFunction basic objects': function(){
 		var obj = {0:3,'str':17,3:'str',undefined:1};
