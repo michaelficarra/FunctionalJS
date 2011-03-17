@@ -1,7 +1,7 @@
 ###
 ---
 description: Extensions that allow a more functional programming style
-license: LGPL
+license: 3-clause BSD
 authors: ['Michael Ficarra']
 requires: []
 provides: [
@@ -352,6 +352,5 @@ provides: [
 
 ###
 Copyright 2010 Michael Ficarra
-This program is distributed under the (very open)
-terms of the GNU Lesser General Public License
+This program is distributed under the 3-clause BSD License
 ###
