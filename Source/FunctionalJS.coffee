@@ -195,7 +195,7 @@ provides: [
 				else [_]
 			every = Array::every or (fn) ->
 				for el, i in @
-					return false unless fn.call @, el, i, iterable
+					return false unless fn.call @, el, i, @
 				true
 			# used to check if arguments/contexts are functionally equivalent
 			equalityCheck = (a, b) ->
