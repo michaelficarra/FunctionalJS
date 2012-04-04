@@ -1,0 +1,656 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>FunctionalJS by michaelficarra</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>FunctionalJS</h1>
+        <p>Extensions to the Function object that allow a more functional programming style</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/michaelficarra/FunctionalJS" class="button fork"><strong>Fork On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/michaelficarra/FunctionalJS/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/michaelficarra/FunctionalJS/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <p><em>FunctionalJS</em> is a set of extensions to the <code>Function</code> class that allow for a
+more functional programming style.</p>
+
+<h2>How To Use</h2>
+
+<p><em>FunctionalJS</em> is not a single utility, but rather a set of related language
+enhancements that allow for a different programming style, so there is no
+specific use case for <em>FunctionalJS</em> as a whole. However, the documentation for
+each of the methods provided by <em>FunctionalJS</em> is listed below.</p>
+
+<h2>Class Methods</h2>
+
+<h3>Function._ ([index])</h3>
+
+<p>The underscore function accesses successive arguments of the function in which
+it is called. If a number is given as an argument, the argument at that index
+is returned and the internal pointer is not advanced.</p>
+
+<p>The underscore function can also be passed to <code>Function::partial</code> as the
+placeholder for undefined arguments rather than passing <code>undefined</code>.</p>
+
+<pre><code>var fn = function(a){
+    return [_(),_(3),_(),_(),_(0),_(),_()];
+}
+fn(1,2,3,4)    // [1,4,2,3,1,4,undefined]
+</code></pre>
+
+<h3>Function.empty ⇒ undefined</h3>
+
+<p>Returns <code>undefined</code> for any given value. Useful when overriding another
+function and desiring no action.</p>
+
+<pre><code>Function.empty()        // undefined
+Function.empty("")      // undefined
+Function.empty(2)       // undefined
+Function.empty(null)    // undefined
+Function.empty(true)    // undefined
+</code></pre>
+
+<h3>Function.identity (*args) ⇒ value</h3>
+
+<p>Returns whatever it is given. When many arguments are given, returns an array
+containing those values. Useful when a function is expected and one would like
+to pass a constant value.</p>
+
+<pre><code>Function.identity(0)                 // 0
+Function.identity("str")             // "str"
+Function.identity(undefined)         // undefined
+Function.identity(null)              // null
+Function.identity(function a(){})    // &lt;#Function:a&gt;
+Function.identity()                  // undefined
+Function.identity(0,1,2)             // [0,1,2]
+Function.identity(0,undefined)       // [0,undefined]
+</code></pre>
+
+<h3>Function.context ⇒ this</h3>
+
+<p>A function that returns its context (the <code>this</code> value).</p>
+
+<pre><code>Function.context()            // global scope object, likely window
+Function.context.call(1,2)    // 1
+</code></pre>
+
+<h3>Function.lambda (value) ⇒ function() ⇒ value</h3>
+
+<p>Returns a function that returns <strong>value</strong>.</p>
+
+<pre><code>var fn = Function.lambda("lambda")    // &lt;#Function:fn&gt;
+fn()         // "lambda"
+fn(false)    // "lambda"
+fn(18)       // "lambda"
+</code></pre>
+
+<h3>Function.pluck (property) ⇒ function(obj) ⇒ obj[property]</h3>
+
+<p>Returns a function that returns the property of the passed object referenced by
+<strong>property</strong>.</p>
+
+<pre><code>var arr = [[0],[1,2,3],[2,3]],
+    len = Function.pluck('length')
+arr.map(Function.pluck(0))        // [0,1,2]
+arr.map(Function.pluck(1))        // [undefined,2,3]
+arr.map(len)                      // [1,3,2]
+len(arr)                          // 3
+len("string")                     // 6
+len({test:"abc",length:"def"})    // "def"
+</code></pre>
+
+<h3>Function.invoke (method, *defaultArg) ⇒ function(obj)</h3>
+
+<p>Returns a function that calls the method referenced by <strong>method</strong> of <strong>obj</strong>.
+Any additional arguments passed to <code>Function.invoke</code> will be used as the
+default arguments to be passed to the given method by the generated function.
+Any arguments passed to the generated function beyond the first will be passed
+to the function it calls instead of passing the default arguments.</p>
+
+<pre><code>var now   = Function.invoke('now'),
+    first = Function.invoke(0,'a'),
+    obj   = {now:Function.identity},
+    arr   = [Function.identity];
+now(Date)         // &lt;the current date&gt;
+now(obj,0,1,2)    // [0,1,2]
+first(arr)        // 'a'
+first(arr,'b')    // 'b'
+</code></pre>
+
+<h3>Function.sequence (*fn) ⇒ function(*arg)</h3>
+
+<p>Creates a function that calls the first passed function on the first call, the
+second passed function on the next call (if one was passed), and so on. The
+last function is treated as if it proceeds the first function. Arguments passed
+to the generated function are passed to the original functions. The return
+value is the return value of the original function. When called with no
+arguments, Function.sequence returns Function.empty.</p>
+
+<pre><code>var fn1 = function(){ return 1; },
+    fn2 = function(){ return 2; },
+    fn3 = function(){ return 3; },
+    seq = Function.sequence(fn1,fn2,fn3);
+seq()    // 1
+seq()    // 2
+seq()    // 3
+seq()    // 1
+seq()    // 2
+</code></pre>
+
+<h3>Function.concat[enate] (*fn) ⇒ function(*arg)</h3>
+
+<p>Creates a function that runs all functions passed to <code>Function.concat</code>
+sequentially. The return value of the last function is returned by the
+generated function. Arguments given to the generated function are passed to all
+functions.</p>
+
+<pre><code>var sharedArr = [],
+    fnA = function(){ sharedArr.push('A'); return 0; },
+    fnB = function(){ sharedArr.push('B'); return 1; },
+    fnC = function(_){ sharedArr.push(_+23); return 2; }
+Function.concat(fnA,fnB,fnC)(100)    // 2
+sharedArr                            // ['A','B',123]
+</code></pre>
+
+<h3>Function.compose (*fn) ⇒ function(*arg)</h3>
+
+<p>Creates a function that runs all functions passed in reverse order, passing the
+return value of the last function run as the input to the next function. Any
+arguments given to the generated function will be passed to the first function
+called.</p>
+
+<pre><code>var a = function(str){ return 'a'+str; },
+    b = function(str){ return 'b'+str; },
+    c = function(str1,str2){ return 'c'+str1+str2+'f'; },
+    fn = Function.compose(a,b,c)
+fn('d','e')    // "abcde"
+</code></pre>
+
+<h3>Function.overload (*fn) ⇒ function(*arg)</h3>
+
+<p>If an object having numeric keys is given as the sole argument, returns a
+function that will call the function indexed by the number of arguments passed
+to it. If a list of functions is given as arguments, returns a function that
+calls the last function given that has an arity of the number of arguments
+passed to the returned function.</p>
+
+<pre><code>var fnA = function(){ return 'A'; },
+    fnB = function(x){ return 'B'; },
+    fnC = function(y,y){ return 'C'; },
+    fnD = funciton(z,z,z){ return 'D'; }
+var overloaded = Function.overload(fnA,fnB,fnC,fnD)  // &lt;#Function:overloaded&gt;
+overload()           // 'A'
+overload(0,0)        // 'C'
+overload(0,0,0,0)    // undefined
+
+overloaded = Function.overload({
+    0:fnD, 1:fnC, 2:fnB, 8:fnA
+})
+overloaded(0)                        // 'C'
+overloaded(0,0,0)                    // undefined
+overloaded.apply({},new Array(8))    // 'A'
+</code></pre>
+
+<h3>Function.and (*fn) ⇒ function(*arg)</h3>
+
+<p>Returns a function that returns the result of performing a Boolean AND
+operation on the return values of all functions passed to <code>Function.and</code>.
+Arguments given to the generated function will be passed to the called
+functions. Short-circuit evaluation logic is applied. When only a single
+function is given to <code>Function.and</code>, the Boolean interpretation of the return
+value of that function is returned. When no arguments are given, returns
+<code>Function.empty</code>.</p>
+
+<pre><code>var fnTrue = Function.lambda(true),
+    fnFalse = Function.lambda(false);
+Function.and()()                   // undefined
+Function.and(fnTrue)()             // true
+Function.and(fnFalse)()            // false
+Function.and(fnTrue,fnFalse)()     // false
+Function.and(fnFalse,fnFalse)()    // false
+Function.and(fnTrue,fntrue)()      // true
+</code></pre>
+
+<h3>Function.or (*fn) ⇒ function(*arg)</h3>
+
+<p>Behaves exactly as <code>Function.and</code>, except uses Boolean <em>OR</em> logic instead of
+Boolean <em>AND</em> logic.</p>
+
+<h3>Function.xor (*fn) ⇒ function(*arg)</h3>
+
+<p>Behaves as <code>Function.and</code> and <code>Function.or</code>, except uses Boolean <em>XOR</em> logic
+and does not short-circuit.</p>
+
+<h2>Instance Methods</h2>
+
+<h3>toFunction ⇒ this</h3>
+
+<p>Returns the function upon which <code>toFunction</code> is called.</p>
+
+<h3>wrap (fn, [bind]) ⇒ function(*arg)</h3>
+
+<p>Returns a function that calls <strong>fn</strong>, passing to it this function instance as
+the first argument and the arguments given to the generated function as the
+second argument.</p>
+
+<p>In other words, it wraps this Function instance in <strong>fn</strong>. The arguments given
+to the generated function (the wrapper function) are the function upon which
+<code>wrap</code> is called and the arguments object from the generated function (as an
+array).</p>
+
+<p>An optional second argument may be given, which binds the function upon which
+<code>wrap</code> is called to <strong>bind</strong>.</p>
+
+<p>Examples of usage taken from the source:</p>
+
+<pre><code>Function.implement({
+    curry: function(){
+        var curriedArgs = Array.prototype.slice.call(arguments);
+        return this.wrap(function(original,passedArgs){
+            return original.apply(this,curriedArgs.concat(passedArgs));
+        });
+    },
+
+    not: function(){
+        if(arguments.length) return this.not().apply(this,arguments);
+        return this.wrap(function(fn,args){
+            return !fn.apply(this,args);
+        });
+    }
+});
+</code></pre>
+
+<h3>getOrigin ⇒ function(*arg)</h3>
+
+<p><em>Note: All Function instance methods defined in FunctionalJS that return a function use <code>wrap</code> to create it; you should, too!</em>
+When called on functions passed through <code>wrap</code>, <code>getOrigin</code> returns the value
+returned when <code>getOrigin</code> is applied to the function on which <code>wrap</code> was
+originally called.  Otherwise, <code>getOrigin</code> acts like <code>Function.context</code> and
+returns the function upon which it is called. This essentially walks the chain
+of wrapped functions to find the original function with none of the
+modifications applied to it.</p>
+
+<pre><code>var fn = function(a,b){ return a+b; },
+    notted = fn.not(),
+    curried = notted.curry(2);
+
+notted.getOrigin()            // &lt;#Function:fn&gt;
+notted === fn                 // false
+notted.getOrigin() === fn     // true
+curried.getOrigin() === fn    // true
+</code></pre>
+
+<h3>memoize ([memos]) ⇒ function(*args)</h3>
+
+<p><em>Note: Objects are compared using exact equality (<code>===</code>), arrays are considered equal if their contents are equal</em></p>
+
+<p>Returns a memoized version of the function upon which memoize is called.  The
+memoized function keeps track of return values and the inputs that generated
+them, causing a faster, cached response the next time the same set of inputs is
+given. The unique key used to determine if a return value exists is the set of
+the context (the <code>this</code> value) and all arguments passed to the memoized
+function.</p>
+
+<p>The internal memo collection can be initialized by passing one or more
+specially formatted objects containing a set of predetermined inputs and
+outputs as the first argument to <code>memoize</code> (<strong>memos</strong>). The object must have a
+<code>returnValue</code> property, and may have <code>context</code> and <code>args</code> properties. The
+<code>returnValue</code> property specifies the value returned by the generated function
+on a cache hit. The <code>context</code> property defines the context that must be
+matched, and the <code>args</code> property defines the arguments that must be matched for
+a cache hit. The context or args values, if undefined, will match any context
+or arguments.  The <code>args</code> value can either be a single value or an array
+containing zero or more values.</p>
+
+<pre><code>var tFunction = Function.lambda(true),
+    defs = [
+        {args: 3, returnValue: false},
+        {args: [1,2], returnValue: false}
+    ]
+    memoized = tFunction.memoize(defs);
+
+memoized()       // true
+memoized(1)      // true
+memoized(1,2)    // false
+memoized(2,1)    // true
+memoized(2)      // true
+memoized(3)      // false
+tFunction(3)     // true
+</code></pre>
+
+<h3>traced ([name, [opts]]) ⇒ function(*args)</h3>
+
+<p>Wraps the function upon which <code>trace</code> is called so that it logs useful
+information to the console (according to <strong>opts</strong>) whenever it is called. If a
+non-falsey value is given for <strong>name</strong>, it will be used in the console's group
+name. The available options for <code>traced</code> are:</p>
+
+<ul>
+<li>Function.TRACE_NONE
+Will cause the traced function to only log that it was called.</li>
+<li>Function.TRACE_ALL
+Will cause the traced function to act as if all options were enabled.</li>
+<li>Function.TRACE_ARGUMENTS
+Will log the arguments passed to the traced function.</li>
+<li>Function.TRACE_CONTEXT
+Will log the context (<code>this</code> value) of the traced function.</li>
+<li>Function.TRACE_RETURN
+Will log the return value of the traced function.</li>
+<li>Function.TRACE_TIME
+Will log the time it takes to run the function.</li>
+<li>Function.TRACE_STACK
+Will log a stack trace.</li>
+</ul><p><strong>opts</strong> may be the bitwise OR of any of these options. <strong>opts</strong> defaults to
+<code>Function.TRACE_ARGUMENTS | Function.TRACE_RETURN</code>. </p>
+
+<pre><code>var fn1 = function(){},
+    traced1 = fn1.traced('fn1');
+traced1();
+
+var fn2 = function funcTwo(){},
+    traced2 = fn2.traced(undefined,Function.TRACE_ALL);
+traced2();
+
+var fn3 = function(){},
+    traced3 = fn3.traced('fn3',Function.TRACE_RETURN | Function.TRACE_CONTEXT);
+traced3();
+</code></pre>
+
+<h3>partial (*args) ⇒ function(*args)</h3>
+
+<p><em>Note: Function._ is defined as _ in the global scope</em></p>
+
+<p>Creates a partially applied function that has any passed arguments that are not
+<code>undefined</code> or <code>Function._</code> bound in the position they are given. The returned
+function accepts any unbound arguments.</p>
+
+<pre><code>var fn = function(){ return [].slice.call(arguments); }
+var part = fn.partial(1,undefined,_,4)      // &lt;#Function:part&gt;
+part(2,3,5)                                 // [1,2,3,4,5]
+</code></pre>
+
+<h3>curry (*args) ⇒ function(*args)</h3>
+
+<p>A simplified <code>Function::partial</code>. Creates a partially applied function that has
+the arguments given to <code>curry</code> bound to its leftmost arguments in the order in
+which they are given.</p>
+
+<pre><code>var fn = function(){ return [].slice.call(arguments); }
+var some = fn.curry(1,2)        // &lt;#Function:some&gt;
+some()                          // [1,2]
+var most = some.curry(3)        // &lt;#Function:most&gt;
+var all = most(4,5)             // [1,2,3,4,5]
+</code></pre>
+
+<h3>rcurry (*args) ⇒ function(*args)</h3>
+
+<p>Creates a partially applied function that has the arguments given to <code>rcurry</code>
+bound to its rightmost arguments in the order in which they are given.</p>
+
+<pre><code>var fn = function(){ return [].slice.call(arguments); }
+var some = fn.rcurry(4,5)       // &lt;#Function:some&gt;
+some()                          // [4,5]
+var most = some.rcurry(3)       // &lt;#Function:most&gt;
+var all = most(1,2)             // [1,2,3,4,5]
+</code></pre>
+
+<h3>not (*args) ⇒ mixed</h3>
+
+<p>When called with no arguments, returns a function that returns the opposite
+Boolean representation of the return value of the function upon which <code>not</code> is
+called. When arguments are passed to <code>not</code>, the opposite Boolean representation
+of the return value of the function upon which <code>not</code> is called when passed
+those arguments is returned.</p>
+
+<pre><code>var powerOfTwo = function(n){ return n&gt;0 &amp;&amp; !(n&amp;(n-1)); }
+var notted = powerOfTwo.not()   // &lt;#Function:notted&gt;
+powerOfTwo(2)        // true
+notted(2)            // false
+powerOfTwo(5)        // false
+powerOfTwo.not(5)    // true
+</code></pre>
+
+<h3>append (*fn) ⇒ function(*args)</h3>
+
+<p>Returns a new function that runs the given function(s) after running the
+function upon which <code>append</code> was called. Any arguments passed to the generated
+function will be passed to all functions. The return value of the generated
+function is the return value of the function upon which <code>append</code> was called.</p>
+
+<pre><code>var sharedArr = [],
+    fnA = function(){ sharedArr.push(0); return 0; },
+    fnB = function(){ sharedArr.push(1); return 1; },
+    fnC = function(){ sharedArr.push(2); return 2; },
+
+var fnAB = fnA.append(fnB),
+    fnBC = fnB.append(fnC),
+    fnABC = fnA.append(fnB,fnC);
+fnA()        // 0
+sharedArr    // [0]
+fnAB()       // 0
+sharedArr    // [0,0,1]
+fnBC()       // 1
+sharedArr    // [0,0,1,1,2]
+fnABC()      // 0
+sharedArr    // [0,0,1,1,2,0,1,2]
+</code></pre>
+
+<h3>prepend (*fn) ⇒ function(*args)</h3>
+
+<p>Returns a new function that runs the given function(s) before running the
+function upon which <code>prepend</code> was called. Any arguments passed to the generated
+function will be passed to all functions. The return value of the generated
+function is the return value of the function upon which <code>prepend</code> was called.</p>
+
+<pre><code>var sharedArr = [],
+    fnA = function(_){ sharedArr.push(0+_); return 0; },
+    fnB = function(_){ sharedArr.push(1+_); return 1; },
+    fnC = function(_){ sharedArr.push(2+_); return 2; },
+
+var fnAB = fnB.prepend(fnA),
+    fnBC = fnC.prepend(fnB),
+    fnABC = fnC.prepend(fnA,fnB);
+fnA(0)       // 0
+sharedArr    // [0]
+fnAB(1)      // 1
+sharedArr    // [0,1,2]
+fnBC(2)      // 2
+sharedArr    // [0,1,2,3,4]
+fnABC(3)     // 2
+sharedArr    // [0,1,2,3,4,3,4,5]
+</code></pre>
+
+<h3>overload ([funcTable]) ⇒ function(*args)</h3>
+
+<p>If a numerically indexed object containing functions is given as the only
+argument, the function upon which <code>overload</code> is called is added to the object
+(indexed by its arity) and the object is passed to <code>Function.overload</code>. If a
+list of functions is given, the function upon which <code>overload</code> is called is
+appended to the list and the list is passed to <code>Function.overload</code>. In either
+case, the return value of <code>Function.overload</code> is returned.</p>
+
+<pre><code>var fnA = function(){ return "A"; },
+    fnB = function(b){ return "B"; },
+    fnC = function(){ return "C"; }
+fnA.overload(fnB,fnC)()             // "A"
+fnA.overload({1:fnB,2:fnC})(0)      // "B"
+fnC.overload(fnA,fnB)()             // "C"
+</code></pre>
+
+<h3>saturate (*args) ⇒ function()</h3>
+
+<p>Returns a function that fixes the arguments passed to <code>saturate</code> to the
+function upon which it is called. Arguments given to the returned function will
+be ignored in favor of the originally passed arguments.</p>
+
+<pre><code>Function.identity.saturate(1,2)()         // [1,2]
+Function.identity.saturate(1,2)(3,4)      // [1,2]
+Function.identity.saturate()()            // undefined
+Function.identity.saturate()(1,2)         // undefined
+Function.identity.saturate(1)()           // 1
+Function.identity.saturate(2)(1,2)        // 2
+</code></pre>
+
+<h3>aritize (arity) ⇒ function(*args)</h3>
+
+<p>If given a non-negative <strong>arity</strong>, a function that only accepts the first
+<strong>arity</strong> arguments is returned. If <strong>arity</strong> is less than zero, a function
+that accepts all but the last <strong>arity</strong> arguments is returned.</p>
+
+<pre><code>Function.identity.aritize(2)(0,1,2)       // [0,1]
+Function.identity.aritize(0)(0,1)         // undefined
+Function.identity.aritize(-2)(0,1,2)      // 0
+</code></pre>
+
+<h3>getArgs ⇒ array</h3>
+
+<p>Returns an array containing the arguments expected by the function upon which
+<code>getArgs</code> is called.</p>
+
+<pre><code>function(one,two){}.getArgs()             // ["one","two"]
+function(a,b,c){}.memoize().getArgs()     // ["a","b","c"]
+function(){}.getArgs()                    // []
+</code></pre>
+
+<h3>getArity ⇒ integer</h3>
+
+<p>Returns the number of arguments expected by the function upon which <code>getArity</code>
+is called.</p>
+
+<pre><code>function(one,two){}.getArity()            // 2
+function(a,b,c){}.memoize().getArity()    // 3
+function(){}.getArity()                   // 0
+</code></pre>
+
+<h3>Array Methods</h3>
+
+<p>The array methods <code>forEach</code>, <code>each</code>, <code>every</code>, <code>some</code>, <code>filter</code>, <code>map</code>,
+<code>reduce</code>, <code>reduceRight</code>, and <code>sort</code> are defined as Function instance methods
+that accept an array as input. <code>foldl</code> and <code>foldr</code> are implemented as aliases
+to <code>reduce</code> and <code>reduceRight</code>. The function call is translated into the
+associated method call on the array, passing the function upon which the method
+was called as the first argument and any other arguments supplied as successive
+arguments.</p>
+
+<pre><code>var sum = function (a,b){ return a+b; }    // &lt;#Function:sum&gt;
+sum.reduce([1,2,3,4],0)                    // 10
+
+var gtZero = function(_){ return _&gt;0; }    // &lt;#Function:gtZero&gt;
+gtZero.every([5,6,7,8])                    // true
+</code></pre>
+
+<h2>Array Instance Methods</h2>
+
+<h3>Array::toFunction ⇒ function(*args)</h3>
+
+<p>Returns a function that returns the value of any property of the array upon
+which <code>toFunction</code> was called. Most useful for accessing the numeric properties
+of the array.</p>
+
+<pre><code>var arr = ['a','b','c']         // ['a','b','c']
+var fn = arr.toFunction()       // &lt;#Function:fn&gt;
+fn(0)                           // 'a'
+fn(2)                           // 'c'
+fn(3)                           // undefined
+fn('length')                    // 3
+</code></pre>
+
+<h2>Hash Instance Methods</h2>
+
+<h3>Hash::toFunction ⇒ function(*args)</h3>
+
+<p>Returns a function that returns the value of any property of the hash upon
+which <code>toFunction</code> was called.</p>
+
+<pre><code>var obj = new Hash({a:0,b:1,c:2})   // {a:0,b:1,c:2}
+var fn = obj.toFunction()           // &lt;#Function:fn&gt;
+fn('a')                             // 0
+fn('c')                             // 2
+fn('z')                             // undefined
+fn('hasOwnProperty')                // &lt;#Function:hasOwnProperty&gt;
+</code></pre>
+
+<h2>Object Class Methods</h2>
+
+<h3>Object.toFunction (obj) ⇒ function(*args)</h3>
+
+<p>Returns a function that returns the value of any property of <strong>obj</strong>.</p>
+
+<pre><code>var obj = {a:0,b:1,c:2},            // {a:0,b:1,c:2}
+    fn = Object.toFunction(obj)     // &lt;#Function:fn&gt;
+fn('a')                             // 0
+fn('c')                             // 2
+fn('z')                             // undefined
+fn('hasOwnProperty')                // &lt;#Function:hasOwnProperty&gt;
+
+// Object.toFunction can make a function out of ANY object
+var node = document.createElement('div')         // &lt;#HTMLDivElement:node&gt;
+node.id = 'testID'
+node.style.color = '#EEE'
+var divFunc = Object.toFunction(node)            // &lt;#Function:divFunc&gt;
+var styleFunc = Object.toFunction(node.style)    // &lt;#Function:styleFunc&gt;
+divFunc('id')                                    // "testID"
+styleFunc('color')                               // "#EEE"
+</code></pre>
+
+<h2>Globals</h2>
+
+<h3>_</h3>
+
+<p>The global _ function is a short, global reference to Function._.</p>
+
+<h2>TODO</h2>
+
+<ul>
+<li>document Function::overloadSetter and Function::overloadGetter</li>
+<li>document Function::extend and Function::implement</li>
+<li>document Function::bind</li>
+<li>update source headers, package.yml, and externs.js to reflect new API additions</li>
+</ul><h2>Known Issues</h2>
+
+<ul>
+<li>The underscore function is broken in chrome, caused by
+arguments.callee.caller.arguments not returning the same object on separate
+accesses. See <a href="http://code.google.com/p/v8/issues/detail?id=222">V8 Issue 222</a>.</li>
+</ul><h2>Additional Info</h2>
+
+<p>I am always open for feature requests or any feedback.
+I can be reached at <a href="http://github.com/michaelficarra">Github</a>.</p>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/michaelficarra">michaelficarra</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
